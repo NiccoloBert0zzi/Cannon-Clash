@@ -5,31 +5,21 @@ precision mediump float;
 uniform float time;
 uniform vec2 mouse;
 uniform vec2 resolution;
-uniform sampler2D backbuffer;
-
-float nrand(vec2 n)
-{
-	return fract(sin(dot(n.xy, vec2(12.9898, 78.233))) * 43758.5453);
-}
 
 void main( void ) {
+    vec2 position = (gl_FragCoord.xy - resolution * 0.5) / resolution.yy;
+    float th = atan(position.y, position.x) / (2.0 * 3.1415926) + 0.5;
+    float dd = length(position);
+    float d = 0.25 / dd + time;
 
-	vec2 screen_pos = gl_FragCoord.xy;
-	vec2 mouse_pos = resolution*.5;
-	
-	vec2 n = screen_pos - mouse_pos;
-	float color = nrand(screen_pos*0.01 + time*0.01);
-	
-	if (length(n) > 4.0)
-	{
-		vec2 y = normalize(-n);
-		vec2 x = vec2(-y.y, y.x);
-		
-		float d = length(n);
-		float r = color*d*.25;
-	
-		color = texture2D(backbuffer, (screen_pos + y*r*.2)/resolution).z*.5 +
-			texture2D(backbuffer, (screen_pos + y*r*.8 - x*r*.9)/resolution).z*.5;
-	}
-	gl_FragColor = vec4(color-.2, color - .5, color, 1.0 );
+    vec3 uv = vec3(th + d, th - d, th + sin(d) * 0.6);
+    float a = 0.5 + cos(uv.x * 3.1415926 * 2.0) * 0.5;
+    float b = 0.5 + cos(uv.y * 3.1415926 * 2.0) * 0.5;
+    float c = 0.5 + cos(uv.z * 3.1415926 * 6.0) * 0.5;
+
+    vec3 color = mix(vec3(0.1, 0.8, 0.1), vec3(0.1, 0.2, 0.2), pow(a, 0.2)) * 0.75;
+    color += mix(vec3(0.1, 0.9, 0.1), vec3(0.1, 0.1, 0.2), pow(b, 0.5)) * 0.75;
+    color += mix(vec3(0.2, 0.8, 0.2), vec3(0.2, 0.1, 0.2), pow(c, 0.1)) * 0.75;
+
+    gl_FragColor = vec4(color * clamp(dd, 0.0, 98.0), 1.0);
 }

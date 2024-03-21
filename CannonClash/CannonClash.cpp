@@ -14,6 +14,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+unsigned int VAO_Text, VBO_Text;
+
 //init
 unsigned int programId, programId_text;
 vector<Forma> Scena;
@@ -29,6 +31,7 @@ int width = 1280;
 int height = 720;
 float w_update, h_update;
 
+bool isPlaying = false;
 
 void reshape(int w, int h)
 {
@@ -76,13 +79,18 @@ void drawScene(void)
 	glDrawArrays(Scena[0].render, 0, Scena[0].nv);
 	glBindVertexArray(0);
 
+	if (!isPlaying) {
+		RenderText(programId_text, Projection, "CANNON CLASH", VAO_Text, VBO_Text, 450.0f, 600.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	}
+
 	glutSwapBuffers();
 
 }
 void updateScale(int value) {
-	glutTimerFunc(250, updateScale, 0);
+	glutTimerFunc(32, updateScale, 0);
 	glutPostRedisplay();
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -98,19 +106,20 @@ int main(int argc, char* argv[])
 	glutCreateWindow("Cannon Clash");
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(drawScene);
-	/*glutKeyboardFunc(myKeyboard);
+	/*glutKeyboardFunc(keyboardFunc);
 	glutKeyboardUpFunc(keyboardReleasedEvent);
 	glutTimerFunc(250, update_Barca, 0); //gestione evento oziosit : viene richiamata la funzione updateScale ogni 250 millisecondi che aggiorna i parametri di scalatura e forza il ridisegno
 	glutTimerFunc(250, update_f, 0);*/
 
-	glutTimerFunc(250, updateScale, 0);
+	glutTimerFunc(32, updateScale, 0);
 	glewExperimental = GL_TRUE;
 	glewInit();
+
 	INIT_SHADER();
 	INIT_VAO();
 	//Init VAO per la gestione del disegno
 
-	//INIT_VAO_Text();
+	INIT_VAO_Text();
 	Init_Freetype();
 
 	//Per gestire i colori con trasparenza: mescola i colori di geometrie che si sovrappongono

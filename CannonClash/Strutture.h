@@ -45,3 +45,8 @@ struct Character {
 	glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
 	unsigned int Advance;   // Horizontal offset to advance to next glyph
 };
+
+struct Mouse {
+	float x;
+	float y;
+};
