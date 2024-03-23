@@ -132,7 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometria.h" />
-    <ClInclude Include="GestioneTesto.h" />
+    <ClInclude Include="Text_Handler.h" />
     <ClInclude Include="Gestione_VAO.h" />
     <ClInclude Include="inizializzazioni.h" />
     <ClInclude Include="Lib.h" />
@@ -142,7 +142,7 @@
   <ItemGroup>
     <ClCompile Include="CannonClash.cpp" />
     <ClCompile Include="geometria.cpp" />
-    <ClCompile Include="GestioneTesto.cpp" />
+    <ClCompile Include="Text_Handler.cpp" />
     <ClCompile Include="Gestione_VAO.cpp" />
     <ClCompile Include="inizializzazioni.cpp" />
     <ClCompile Include="Shader.cpp" />

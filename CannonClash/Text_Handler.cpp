@@ -1,4 +1,3 @@
-
 #include "Strutture.h"
 #include <iostream>
 #include <string>
@@ -6,48 +5,41 @@
 #include "Lib.h"
 #include FT_FREETYPE_H
 
- 
-
-
 std::map<GLchar, Character> Characters;
 
 void Init_Freetype() {
-	// FreeType
-   // --------
+	// Inizializza FreeType
 	FT_Library ft;
-
-
-	if (FT_Init_FreeType(&ft))
-	{
-		// cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+	if (FT_Init_FreeType(&ft)) {
+		// Se l'inizializzazione fallisce, mostra un errore e termina il programma
+		printf("ERROR::FREETYPE: Impossibile inizializzare la libreria FreeType\n");
 		exit(-1);
 	}
 
+	// Carica il tipo di carattere desiderato
 	FT_Face face;
-
-
-	if (FT_New_Face(ft, "fonts/arial.ttf", 0, &face))
-	{
-		printf("ERROR::FREETYPE: Failed to load font\n");
+	if (FT_New_Face(ft, "fonts/arial.ttf", 0, &face)) {
+		// Se il caricamento del tipo di carattere fallisce, mostra un errore e termina il programma
+		printf("ERROR::FREETYPE: Impossibile caricare il tipo di carattere\n");
 		exit(-1);
 	}
 	else {
-		// set size to load glyphs as
+		// Imposta la dimensione per caricare i glifi
 		FT_Set_Pixel_Sizes(face, 0, 48);
 
-		// disable byte-alignment restriction
+		// Disabilita la restrizione di allineamento dei byte
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		// load first 128 characters of ASCII set
-		for (unsigned char c = 0; c < 128; c++)
-		{
-			// Load character glyph 
-			if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-			{
-				 printf("ERROR::FREETYTPE: Failed to load Glyph \n");
+		// Carica i primi 128 caratteri dell'insieme ASCII
+		for (unsigned char c = 0; c < 128; c++) {
+			// Carica il glifo del carattere
+			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+				// Se il caricamento del glifo fallisce, continua con il prossimo carattere
+				printf("ERROR::FREETYTPE: Impossibile caricare il glifo del carattere\n");
 				continue;
 			}
-			// generate texture
+
+			// Genera la texture per il glifo
 			unsigned int texture;
 			glGenTextures(1, &texture);
 			glBindTexture(GL_TEXTURE_2D, texture);
@@ -62,12 +54,14 @@ void Init_Freetype() {
 				GL_UNSIGNED_BYTE,
 				face->glyph->bitmap.buffer
 			);
-			// set texture options
+
+			// Imposta le opzioni della texture
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			// now store character for later use
+
+			// Memorizza il carattere per un utilizzo successivo
 			Character character = {
 				texture,
 				glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
@@ -78,36 +72,38 @@ void Init_Freetype() {
 		}
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	// destroy FreeType once we're finished
+
+	// Rilascia le risorse di FreeType una volta terminato
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
-
 }
 void RenderText(int Program, mat4 Projection_Text, unsigned int VAO_Text, unsigned int VBO_Text, std::string text, float x, float y, float scale, glm::vec3 color)
 {
 }
 void RenderText(int Program, mat4 Projection_text, std::string text, unsigned int VAO_Text, unsigned int VBO_Text, float x, float y, float scale, glm::vec3 color)
 {
-	// activate corresponding render state	
+	// Attiva lo stato di rendering corrispondente
 	glUseProgram(Program);
-	glUniform3f(glGetUniformLocation(Program, "textColor"), color.x, color.y, color.z);
-	glUniformMatrix4fv(glGetUniformLocation(Program, "Projection_text"), 1, GL_FALSE, value_ptr(Projection_text));
+	glUniform3f(glGetUniformLocation(Program, "textColor"), color.x, color.y, color.z); // Imposta il colore del testo
+	glUniformMatrix4fv(glGetUniformLocation(Program, "Projection_text"), 1, GL_FALSE, value_ptr(Projection_text)); // Imposta la matrice di proiezione
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO_Text);
 
-	// iterate through all characters
+	// Itera attraverso tutti i caratteri della stringa di testo
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++)
 	{
-		Character ch = Characters[*c];
+		Character ch = Characters[*c]; // Ottieni il carattere corrente
 
+		// Calcola le coordinate del carattere
 		float xpos = x + ch.Bearing.x * scale;
 		float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
 		float w = ch.Size.x * scale;
 		float h = ch.Size.y * scale;
-		// update VBO for each character
+
+		// Aggiorna il buffer dei vertici per ogni carattere
 		float vertices[6][4] = {
 			{ xpos,     ypos + h,   0.0f, 0.0f },
 			{ xpos,     ypos,       0.0f, 1.0f },
@@ -117,18 +113,24 @@ void RenderText(int Program, mat4 Projection_text, std::string text, unsigned in
 			{ xpos + w, ypos,       1.0f, 1.0f },
 			{ xpos + w, ypos + h,   1.0f, 0.0f }
 		};
-		// render glyph texture over quad
+
+		// Renderizza la texture del carattere su un quadrato
 		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-		// update content of VBO memory
+
+		// Aggiorna il contenuto della memoria del buffer dei vertici
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_Text);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		// render quad
+
+		// Renderizza il quadrato
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (ch.Advance >> 6)* scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+
+		// Avanza il cursore per il prossimo carattere (l'advance è il numero di pixel su 64)
+		x += (ch.Advance >> 6) * scale;
 	}
+
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+

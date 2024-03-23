@@ -10,7 +10,7 @@
 //#include "Gestione_Gioco.h"
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include "GestioneTesto.h"
+#include "Text_Handler.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
