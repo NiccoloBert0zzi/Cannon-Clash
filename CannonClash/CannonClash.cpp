@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "ShaderMaker.h"
+#include "Shader.h"
 #include "Lib.h"
 #include "Strutture.h"
 #include "geometria.h"
@@ -17,7 +17,6 @@
 unsigned int VAO_Text, VBO_Text;
 
 //init
-unsigned int programId, programId_text;
 vector<Forma> Scena;
 Forma piano = {};
 //Forma Curva = {}, Poligonale = {}, Derivata = {}, shape = {};
@@ -30,8 +29,6 @@ GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltaf
 int width = 1280;
 int height = 720;
 float w_update, h_update;
-
-bool isPlaying = false;
 
 void reshape(int w, int h)
 {
@@ -79,10 +76,6 @@ void drawScene(void)
 	glDrawArrays(Scena[0].render, 0, Scena[0].nv);
 	glBindVertexArray(0);
 
-	if (!isPlaying) {
-		RenderText(programId_text, Projection, "CANNON CLASH", VAO_Text, VBO_Text, 450.0f, 600.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-	}
-
 	glutSwapBuffers();
 
 }
@@ -115,7 +108,7 @@ int main(int argc, char* argv[])
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	INIT_SHADER();
+	Shader::INIT_SHADER();
 	INIT_VAO();
 	//Init VAO per la gestione del disegno
 

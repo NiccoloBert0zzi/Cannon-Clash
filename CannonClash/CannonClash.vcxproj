@@ -136,7 +136,7 @@
     <ClInclude Include="Gestione_VAO.h" />
     <ClInclude Include="inizializzazioni.h" />
     <ClInclude Include="Lib.h" />
-    <ClInclude Include="ShaderMaker.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="Strutture.h" />
   </ItemGroup>
   <ItemGroup>
@@ -145,7 +145,7 @@
     <ClCompile Include="GestioneTesto.cpp" />
     <ClCompile Include="Gestione_VAO.cpp" />
     <ClCompile Include="inizializzazioni.cpp" />
-    <ClCompile Include="ShaderMaker.cpp" />
+    <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,10 +2,9 @@
 #include "Strutture.h"
 #include "geometria.h"
 //#include "Hermite.h"
-#include "ShaderMaker.h"
 #include "Gestione_VAO.h"
+#include "Shader.h"
 
-extern unsigned int programId, programId_text;
 extern Forma piano;
 extern vector<Forma> Scena;
 extern unsigned int VAO_Text, VBO_Text;
@@ -14,24 +13,6 @@ extern unsigned int VAO_Text, VBO_Text;
 extern mat4 Projection;
 extern GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltafs;
 
-void INIT_SHADER(void)
-{
-	GLenum ErrorCheckValue = glGetError();
-
-	char* vertexShader = (char*)"vertexShader_M.glsl";
-	char* fragmentShader = (char*)"fragmentShader_Onde_Nuvole.glsl";
-
-	programId = ShaderMaker::createProgram(vertexShader, fragmentShader);
-	glUseProgram(programId);
-
-
-	//Generazione del program shader per la gestione del testo
-	vertexShader = (char*)"VertexShader_Text.glsl";
-	fragmentShader = (char*)"FragmentShader_Text.glsl";
-
-	programId_text = ShaderMaker::createProgram(vertexShader, fragmentShader);
-
-}
 
 void INIT_VAO_Text(void)
 {
@@ -96,12 +77,12 @@ void INIT_VAO(void)
 
 
 	//Viene ricavata la location della variabile Uniform Projection presente nel fragment shader
-	MatProj = glGetUniformLocation(programId, "Projection");
+	MatProj = glGetUniformLocation(Shader::getProgramId(), "Projection");
 	//Viene ricavata la location della variabile Uniform Model presente nel fragment shader
-	MatModel = glGetUniformLocation(programId, "Model");
-	loctime = glGetUniformLocation(programId, "time");
-	locres = glGetUniformLocation(programId, "resolution");
+	MatModel = glGetUniformLocation(Shader::getProgramId(), "Model");
+	loctime = glGetUniformLocation(Shader::getProgramId(), "time");
+	locres = glGetUniformLocation(Shader::getProgramId(), "resolution");
 
-	locSceltafs = glGetUniformLocation(programId, "scelta_fs");
+	locSceltafs = glGetUniformLocation(Shader::getProgramId(), "scelta_fs");
 
 }
