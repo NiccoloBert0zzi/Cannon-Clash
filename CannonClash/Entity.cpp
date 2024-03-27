@@ -1,6 +1,8 @@
 #include "Entity.h"
 #include "VAO_Handler.h"
 
+#define  PI   3.14159265358979323846
+
 Entity::Entity()
 {
 }
@@ -11,6 +13,14 @@ GLuint* Entity::getVBO_C() { return &VBO_C; }
 GLuint Entity::getEBO_indici() { return EBO_indici; }
 int Entity::getnTriangles() { return nTriangles; }
 vector<vec3>* Entity::getVertici() { return &vertici; }
+float Entity::getVerticeX(int i)
+{
+	return vertici[i].x;
+}
+float Entity::getVerticeY(int i)
+{
+	return vertici[i].y;
+}
 vector<vec4>* Entity::getColors() { return &colors; }
 int Entity::getVerticiSize(void) { return vertici.size(); }
 vec3* Entity::getVerticiData(void) { return vertici.data(); }
@@ -58,9 +68,23 @@ void Entity::setAlive(bool alive) { this->alive = alive; }
 void Entity::addVertice(vec3 vertice) { vertici.push_back(vertice); }
 void Entity::addColor(vec4 color) { colors.push_back(color); }
 
-void Entity::build(float cx, float cy, float raggiox, float raggioy, Entity* fig)
+void Entity::Build(float cx, float cy, float raggiox, float raggioy, Entity* entity) 
 {
-
+	int i;
+	entity->addVertice(vec3(-1.0, -1.0, 0.0));
+	entity->addVertice(vec3(1.0, -1.0, 0.0));
+	entity->addVertice(vec3(-1.0, 1.0, 0.0));
+	entity->addVertice(vec3(1.0, 1.0, 0.0));
+	for (i = 0; i < entity->getVerticiSize(); i++)
+		entity->addColor(vec4(0.13, 0.44, 0.70, 1.0));
+	entity->setNv(entity->getVerticiSize());
+	entity->setSceltaFs(0);
+	entity->setRender(GL_TRIANGLE_STRIP);
+}
+void Entity::update(int value)
+{
+	glutTimerFunc(32,farfallaUpdate, 0, this);
+	glutPostRedisplay();
 }
 
 void Scene::addEntity(Entity entity)
@@ -71,4 +95,119 @@ void Scene::addEntity(Entity entity)
 Entity Scene::getEntity(int i)
 {
 	return entities[i];
+}
+
+void Cuore::Build(float cx, float cy, float raggiox, float raggioy, Entity* fig)
+{
+	int i;
+	float stepA = (2 * PI) / fig->getnTriangles();
+	float t;
+
+
+	fig->addVertice(vec3(cx, cy, 0.0));
+
+	fig->addColor(vec4(255.0 / 255.0, 75.0 / 255.0, 0.0, 1.0));
+
+	for (i = 0; i <= fig->getnTriangles(); i++)
+	{
+		t = (float)i * stepA;
+		fig->addVertice(vec3(cx + raggiox * (16 * pow(sin(t), 3)), cy + raggioy * ((13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t))), 0.0));
+		//Colore 
+		fig->addColor(vec4(1.0, 204.0 / 255.0, 0.0, 1.0));
+
+
+	}
+	fig->setNv(fig->getVerticiSize());
+	fig->setSceltaFs(1);
+	fig->setRender(GL_TRIANGLE_FAN);
+
+}
+
+void Cuore::update(int value)
+{
+}
+
+void Farfalla::Build(float cx, float cy, float raggiox, float raggioy, Entity* fig)
+{
+	int i;
+	float stepA = (2 * PI) / fig->getnTriangles();
+	float t, xx, yy;
+	float xmax = 0;
+	float xmin = 0;
+
+	float ymax = 0;
+	float ymin = 0;
+
+
+	fig->addVertice(vec3(cx, cy, 0.0));
+
+	fig->addColor(vec4(150.0 / 255.0, 75.0 / 255.0, 0.0, 1.0));
+
+	for (i = 0; i <= fig->getnTriangles(); i++)
+	{
+		t = (float)i * stepA;
+		xx = cx + raggiox * (sin(t) * (exp(cos(t)) - 2 * cos(4 * t)) + pow(sin(t / 12), 5));
+		yy = cy + raggioy * (cos(t) * (exp(cos(t)) - 2 * cos(4 * t)) + pow(sin(t / 12), 5));
+		fig->addVertice(vec3(xx, yy, 0.0));
+		//Colore 
+		fig->addColor(vec4(1.0, 0.0, 0.0, 1.0)); //Nota che la quarta componente corrisponde alla trasparenza del colore
+	}
+
+	fig->setNv(fig->getVerticiSize());
+	fig->setSceltaFs(1);
+	fig->setRender(GL_TRIANGLE_FAN);
+	fig->setNv(fig->getVerticiSize());
+
+	//Calcolo di xmin, ymin, xmax, ymax
+
+	for (i = 1; i < fig->getNv(); i++)
+		if (fig->getVerticeX(i) <= xmin)
+			xmin = fig->getVerticeX(i);
+
+
+	for (i = 1; i < fig->getNv(); i++)
+		if (fig->getVerticeX(i) > xmax)
+			xmax = fig->getVerticeX(i);
+
+	for (i = 1; i < fig->getNv(); i++)
+		if (fig->getVerticeY(i) <= ymin)
+			ymin = fig->getVerticeY(i);
+
+
+	for (i = 1; i < fig->getNv(); i++)
+		if (fig->getVerticeY(i) > ymax)
+			ymax = fig->getVerticeY(i);
+
+	//Aggiorno i valori del corner più in basso a sinistra (corner_b) e del corner più in alto a destra (conrner_t)
+
+	fig->setCorner_b_obj(vec4(xmin, ymin, 0.0, 1.0));
+	fig->setCorner_t_obj(vec4(xmax, ymax, 0.0, 1.0));
+	//Aggiungo i vertici della spezzata per costruire il bounding box
+	fig->addVertice(vec3(xmin, ymin, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmax, ymin, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmax, ymax, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmin, ymin, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmin, ymax, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmax, ymax, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+
+	//Aggiorno il numero dei vertici della figura
+	fig->setNv(fig->getVerticiSize());
+}
+
+void farfallaUpdate(int value, Entity* farfalla) {
+	farfalla->update(value);
+}
+
+void Farfalla::update(int value)
+{
+	dx_f = dx_f + 0.01;
+
+	glutTimerFunc(64, farfallaUpdate, 0,this);
+	glutPostRedisplay();
 }

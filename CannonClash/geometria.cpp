@@ -44,11 +44,11 @@ void costruisci_cuore(float cx, float cy, float raggiox, float raggioy, Entity* 
 	fig->setRender(GL_TRIANGLE_FAN);
 
 }
-void costruisci_farfalla(float cx, float cy, float raggiox, float raggioy, Forma* fig)
+void costruisci_farfalla(float cx, float cy, float raggiox, float raggioy, Entity* fig)
 {
 
 	int i;
-	float stepA = (2 * PI) / fig->nTriangles;
+	float stepA = (2 * PI) / fig->getnTriangles();
 	float t, xx, yy;
 	float xmax = 0;
 	float xmin = 0;
@@ -57,65 +57,65 @@ void costruisci_farfalla(float cx, float cy, float raggiox, float raggioy, Forma
 	float ymin = 0;
 
 
-	fig->vertici.push_back(vec3(cx, cy, 0.0));
+	fig->addVertice(vec3(cx, cy, 0.0));
 
-	fig->colors.push_back(vec4(150.0 / 255.0, 75.0 / 255.0, 0.0, 1.0));
+	fig->addColor(vec4(150.0 / 255.0, 75.0 / 255.0, 0.0, 1.0));
 
-	for (i = 0; i <= fig->nTriangles; i++)
+	for (i = 0; i <= fig->getnTriangles(); i++)
 	{
 		t = (float)i * stepA;
 		xx = cx + raggiox * (sin(t) * (exp(cos(t)) - 2 * cos(4 * t)) + pow(sin(t / 12), 5));
 		yy = cy + raggioy * (cos(t) * (exp(cos(t)) - 2 * cos(4 * t)) + pow(sin(t / 12), 5));
-		fig->vertici.push_back(vec3(xx, yy, 0.0));
+		fig->addVertice(vec3(xx, yy, 0.0));
 		//Colore 
-		fig->colors.push_back(vec4(1.0, 0.0, 0.0, 1.0)); //Nota che la quarta componente corrisponde alla trasparenza del colore
+		fig->addColor(vec4(1.0, 0.0, 0.0, 1.0)); //Nota che la quarta componente corrisponde alla trasparenza del colore
 	}
 
-	fig->nv = fig->vertici.size();
-	fig->sceltaFs = 1;
-	fig->render = GL_TRIANGLE_FAN;
-	fig->nv = fig->vertici.size();
+	fig->setNv(fig->getVerticiSize());
+	fig->setSceltaFs(1);
+	fig->setRender(GL_TRIANGLE_FAN);
+	fig->setNv(fig->getVerticiSize());
 
 	//Calcolo di xmin, ymin, xmax, ymax
 
-	for (i = 1; i < fig->nv; i++)
-		if (fig->vertici[i].x <= xmin)
-			xmin = fig->vertici[i].x;
+	for (i = 1; i < fig->getNv(); i++)
+		if (fig->getVerticeX(i) <= xmin)
+			xmin = fig->getVerticeX(i);
 
 
-	for (i = 1; i < fig->nv; i++)
-		if (fig->vertici[i].x > xmax)
-			xmax = fig->vertici[i].x;
+	for (i = 1; i < fig->getNv(); i++)
+		if (fig->getVerticeX(i) > xmax)
+			xmax = fig->getVerticeX(i);
 
-	for (i = 1; i < fig->nv; i++)
-		if (fig->vertici[i].y <= ymin)
-			ymin = fig->vertici[i].y;
+	for (i = 1; i < fig->getNv(); i++)
+		if (fig->getVerticeY(i) <= ymin)
+			ymin = fig->getVerticeY(i);
 
 
-	for (i = 1; i < fig->nv; i++)
-		if (fig->vertici[i].y > ymax)
-			ymax = fig->vertici[i].y;
+	for (i = 1; i < fig->getNv(); i++)
+		if (fig->getVerticeY(i) > ymax)
+			ymax = fig->getVerticeY(i);
 
 	//Aggiorno i valori del corner più in basso a sinistra (corner_b) e del corner più in alto a destra (conrner_t)
 
-	fig->corner_b_obj = vec4(xmin, ymin, 0.0, 1.0);
-	fig->corner_t_obj = vec4(xmax, ymax, 0.0, 1.0);
+	fig->setCorner_b_obj(vec4(xmin, ymin, 0.0, 1.0));
+	fig->setCorner_t_obj(vec4(xmax, ymax, 0.0, 1.0));
 	//Aggiungo i vertici della spezzata per costruire il bounding box
-	fig->vertici.push_back(vec3(xmin, ymin, 0.0));
-	fig->colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
-	fig->vertici.push_back(vec3(xmax, ymin, 0.0));
-	fig->colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
-	fig->vertici.push_back(vec3(xmax, ymax, 0.0));
-	fig->colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
-	fig->vertici.push_back(vec3(xmin, ymin, 0.0));
-	fig->colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
-	fig->vertici.push_back(vec3(xmin, ymax, 0.0));
-	fig->colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
-	fig->vertici.push_back(vec3(xmax, ymax, 0.0));
-	fig->colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmin, ymin, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmax, ymin, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmax, ymax, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmin, ymin, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmin, ymax, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
+	fig->addVertice(vec3(xmax, ymax, 0.0));
+	fig->addColor(vec4(1.0, 0.0, 0.0, 1.0));
 
 	//Aggiorno il numero dei vertici della figura
-	fig->nv = fig->vertici.size();
+	fig->setNv(fig->getVerticiSize());
 
 }
 

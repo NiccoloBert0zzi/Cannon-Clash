@@ -3,7 +3,6 @@
 #include <string>
 #include "Shader.h"
 #include "Lib.h"
-#include "geometria.h"
 #include "VAO_Handler.h"
 //#include "Gestione_Gioco.h"
 #include <GL/glew.h>
@@ -27,6 +26,8 @@ GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltaf
 int width = 1280;
 int height = 720;
 float w_update, h_update;
+float dx_t = 0, dy_t = 0;
+bool drawBB = TRUE;
 
 void reshape(int w, int h)
 {
@@ -74,6 +75,38 @@ void drawScene(void)
 	glDrawArrays(piano.getRender(), 0, piano.getNv());
 	glBindVertexArray(0);
 
+	/*Matrice di modellazione farfalla */
+	Entity e = Scena.getEntity(1);
+	Farfalla farfalla = static_cast<Farfalla&>(e);
+	farfalla.setModel(mat4(1.0));
+	for (size_t i = 0; i < 2; i++)
+	{
+		farfalla.setModel(translate(farfalla.getModel(), vec3(900.0 + 50 * cos(farfalla.dx_f), 500.0 + 50 * sin(farfalla.dx_f), 0.0)));
+		farfalla.setModel(scale(farfalla.getModel(), vec3(80.5, 80.5, 1.0)));
+		//Agiornamento in coordinate del mondo delle coordinate del Bounding Box della Farfalla
+		farfalla.setCorner_b(farfalla.getCorner_b_obj());
+		farfalla.setCorner_t(farfalla.getCorner_t_obj());
+		farfalla.setCorner_b(farfalla.getModel() * farfalla.getCorner_b());
+		farfalla.setCorner_t(farfalla.getModel() * farfalla.getCorner_t());
+	}
+
+	//Disegno la farfalla fino a quando non sia avvenuta la prima collisione con la palla del cannone
+
+	if (farfalla.getAlive() == TRUE)
+	{
+		glUniform1i(locSceltafs, farfalla.getSceltaFs());
+		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(farfalla.getModel()));
+		glBindVertexArray(*farfalla.getVAO());
+		glDrawArrays(GL_TRIANGLE_FAN, 0, farfalla.getNv() - 6);
+		if (drawBB == TRUE)
+			//		//Disegno Bounding Box
+			glDrawArrays(GL_LINE_STRIP, farfalla.getNv() - 6, 6);
+		glBindVertexArray(0);
+	}
+	else
+		RenderText(Shader::getProgramId_text(), Projection, "GAME OVER", VAO_Text, VBO_Text, 100.0f, 600.0f, 1.0f, glm::vec3(1.0, 1.0f, 0.2f));
+	glUseProgram(Shader::getProgramId());
+
 	glutSwapBuffers(); 
 
 }
@@ -97,10 +130,11 @@ int main(int argc, char* argv[])
 	glutCreateWindow("Cannon Clash");
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(drawScene);
+	glutTimerFunc(64, update, 0);
 	/*glutKeyboardFunc(keyboardFunc);
 	glutKeyboardUpFunc(keyboardReleasedEvent);
 	glutTimerFunc(250, update_Barca, 0); //gestione evento oziosit : viene richiamata la funzione updateScale ogni 250 millisecondi che aggiorna i parametri di scalatura e forza il ridisegno
-	glutTimerFunc(250, update_f, 0);*/
+	;*/
 
 	glutTimerFunc(32, updateScale, 0);
 	glewExperimental = GL_TRUE;

@@ -1,7 +1,6 @@
 #include "Lib.h"
 #include "VAO_Handler.h"
 #include "Shader.h"
-#include "geometria.h"
 #include "Entity.h"
 
 extern unsigned int VAO_Text, VBO_Text;
@@ -50,19 +49,22 @@ void INIT_VAO_Text(void)
 
 void INIT_VAO(Entity* piano, Scene* Scena)
 {
-	costruisci_piano(piano);
+	piano->Build(NULL, NULL, NULL, NULL, piano);
 	INIT_VAO(piano);
 	Scena->addEntity(*piano);
 	get_ShaderLocation();
-	/*Farf.nTriangles = 180;
-	Farf.s = 0.2;
-	costruisci_farfalla(0.0, 0.0, Farf.s, Farf.s, &Farf);
-	crea_VAO_Vector(&Farf);
-	Farf.render = GL_TRIANGLE_FAN;
-	Farf.alive = TRUE;
-	Scena.push_back(Farf);
 
-	//Sommergibile
+	//INSERT FARFALLA
+	Farfalla farfalla = {};
+	farfalla.setnTriangles(180);
+	farfalla.setS(0.2);
+	farfalla.Build(0.0, 0.0, farfalla.getS(), farfalla.getS(), &farfalla);
+	INIT_VAO(&farfalla);
+	farfalla.setRender(GL_TRIANGLE_FAN);
+	farfalla.setAlive(TRUE);
+	Scena->addEntity(farfalla);
+
+	/*//Sommergibile
 	vec4 color_top = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 color_bot = vec4(126.0 / 255.0, 135.0 / 255.0, 146.0 / 255.0, 1.0);
 	crea_punti_forma_da_file("sommergibile.txt", "r", &Curva);

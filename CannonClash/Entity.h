@@ -41,6 +41,8 @@ private:
 		GLuint getEBO_indici(void);
 		int getnTriangles(void);
 		vector<vec3>* getVertici(void);
+		float getVerticeX(int i);
+		float getVerticeY(int i);
 		vector<vec4>* getColors(void);
 		int getVerticiSize(void);
 		vec3* getVerticiData(void);
@@ -85,12 +87,14 @@ private:
 		void setAlive(bool alive);
 
 		Entity();
-		void build(float cx, float cy, float raggiox, float raggioy, Entity* fig);
+		virtual void Build(float cx, float cy, float raggiox, float raggioy, Entity* fig);
+		virtual void update(int value);
+
 		void addVertice(vec3 vertice);
 		void addColor(vec4 color);
 };
 
-class Scene : public Entity
+class Scene
 {
 private:
 	vector<Entity> entities;
@@ -99,3 +103,20 @@ public:
 	Entity getEntity(int i);
 };
 
+class Cuore : public Entity
+{
+public:
+	// Implementazione del metodo Build per la classe Cuore
+	virtual void Build(float cx, float cy, float raggiox, float raggioy, Entity* fig) override;
+	virtual void update(int value) override;
+};
+
+class Farfalla : public Entity
+{
+public:
+	float dx_f = 0.0,dy_f = 0.0;
+	// Implementazione del metodo Build per la classe Cuore
+	virtual void Build(float cx, float cy, float raggiox, float raggioy, Entity* fig) override;
+	virtual void update(int value) override;
+
+};
