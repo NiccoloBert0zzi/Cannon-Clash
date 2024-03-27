@@ -1,46 +1,47 @@
 #include "Strutture.h"
 #include "Lib.h"
+#include "Entity.h"
 #define  PI   3.14159265358979323846
 #pragma warning(disable:4996)
 extern Forma Curva, Derivata;
 
-void costruisci_piano(Forma* fig)
+void costruisci_piano(Entity* entity)
 {
 	int i;
-	fig->vertici.push_back(vec3(-1.0, -1.0, 0.0));
-	fig->vertici.push_back(vec3(1.0, -1.0, 0.0));
-	fig->vertici.push_back(vec3(-1.0, 1.0, 0.0));
-	fig->vertici.push_back(vec3(1.0, 1.0, 0.0));
-	for (i = 0; i < fig->vertici.size(); i++)
-		fig->colors.push_back(vec4(0.13, 0.44, 0.70, 1.0));
-	fig->nv = fig->vertici.size();
-	fig->sceltaFs = 0;
-	fig->render = GL_TRIANGLE_STRIP;
+	entity->addVertice(vec3(-1.0, -1.0, 0.0));
+	entity->addVertice(vec3(1.0, -1.0, 0.0));
+	entity->addVertice(vec3(-1.0, 1.0, 0.0));
+	entity->addVertice(vec3(1.0, 1.0, 0.0));
+	for (i = 0; i < entity->getVerticiSize(); i++)
+		entity->addColor(vec4(0.13, 0.44, 0.70, 1.0));
+	entity->setNv(entity->getVerticiSize());
+	entity->setSceltaFs(0);
+	entity->setRender(GL_TRIANGLE_STRIP);
 }
 
-void costruisci_cuore(float cx, float cy, float raggiox, float raggioy, Forma* fig) {
+void costruisci_cuore(float cx, float cy, float raggiox, float raggioy, Entity* fig) {
 
 	int i;
-	float stepA = (2 * PI) / fig->nTriangles;
+	float stepA = (2 * PI) / fig->getnTriangles();
 	float t;
 
 
-	fig->vertici.push_back(vec3(cx, cy, 0.0));
+	fig->addVertice(vec3(cx, cy, 0.0));
 
-	fig->colors.push_back(vec4(255.0 / 255.0, 75.0 / 255.0, 0.0, 1.0));
+	fig->addColor(vec4(255.0 / 255.0, 75.0 / 255.0, 0.0, 1.0));
 
-	for (i = 0; i <= fig->nTriangles; i++)
+	for (i = 0; i <= fig->getnTriangles(); i++)
 	{
 		t = (float)i * stepA;
-		fig->vertici.push_back(vec3(cx + raggiox * (16 * pow(sin(t), 3)), cy + raggioy * ((13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t))), 0.0));
+		fig->addVertice(vec3(cx + raggiox * (16 * pow(sin(t), 3)), cy + raggioy * ((13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t))), 0.0));
 		//Colore 
-		fig->colors.push_back(vec4(1.0, 204.0 / 255.0, 0.0, 1.0));
+		fig->addColor(vec4(1.0, 204.0 / 255.0, 0.0, 1.0));
 
 
 	}
-	fig->nv = fig->vertici.size();
-	fig->sceltaFs = 1;
-	fig->render = GL_TRIANGLE_FAN;
+	fig->setNv(fig->getVerticiSize());
+	fig->setSceltaFs(1);
+	fig->setRender(GL_TRIANGLE_FAN);
 
 }
 void costruisci_farfalla(float cx, float cy, float raggiox, float raggioy, Forma* fig)

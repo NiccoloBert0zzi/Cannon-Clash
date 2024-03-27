@@ -18,25 +18,25 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GestioneTesto.h">
-      <Filter>File di intestazione</Filter>
-    </ClInclude>
     <ClInclude Include="Lib.h">
-      <Filter>File di intestazione</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderMaker.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="Strutture.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="inizializzazioni.h">
-      <Filter>File di intestazione</Filter>
-    </ClInclude>
-    <ClInclude Include="Gestione_VAO.h">
+    <ClInclude Include="VAO_Handler.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="geometria.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="Text_Handler.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,19 +44,19 @@
     <ClCompile Include="CannonClash.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
-    <ClCompile Include="GestioneTesto.cpp">
-      <Filter>File di risorse</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderMaker.cpp">
-      <Filter>File di risorse</Filter>
-    </ClCompile>
-    <ClCompile Include="inizializzazioni.cpp">
-      <Filter>File di risorse</Filter>
-    </ClCompile>
-    <ClCompile Include="Gestione_VAO.cpp">
+    <ClCompile Include="VAO_Handler.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
     <ClCompile Include="geometria.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Text_Handler.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,24 +3,22 @@
 #include <string>
 #include "Shader.h"
 #include "Lib.h"
-#include "Strutture.h"
 #include "geometria.h"
-#include "inizializzazioni.h"
-#include "Gestione_VAO.h"
+#include "VAO_Handler.h"
 //#include "Gestione_Gioco.h"
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include "Text_Handler.h"
 #include <ft2build.h>
+#include "Entity.h"
 #include FT_FREETYPE_H
 
 unsigned int VAO_Text, VBO_Text;
 
 //init
-vector<Forma> Scena;
-Forma piano = {};
+Scene Scena;
+Entity piano = {};
 //Forma Curva = {}, Poligonale = {}, Derivata = {}, shape = {};
-Forma Curva = {};
 
 mat4 Projection;
 GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltafs;
@@ -65,18 +63,18 @@ void drawScene(void)
 	glUniform2f(locres, resolution.x, resolution.y);
 
 
-
-	Scena[0].Model = mat4(1.0);
-	Scena[0].Model = translate(Scena[0].Model, vec3(0.5, 0.5, 0.0));
-	Scena[0].Model = scale(Scena[0].Model, vec3((float)width, (float)height, 1.0));
+	Entity piano = Scena.getEntity(0);
+	piano.setModel(mat4(1.0));
+	piano.setModel(translate(piano.getModel(), vec3(0.5, 0.5, 0.0)));
+	piano.setModel(scale(piano.getModel(), vec3((float)width, (float)height, 1.0)));
 	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));  //comunica i valori della variabile uniform Projection al vertex shader
-	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Scena[0].Model)); //comunica i valori della variabile uniform Model  al vertex shader
-	glUniform1i(locSceltafs, Scena[0].sceltaFs);
-	glBindVertexArray(Scena[0].VAO);
-	glDrawArrays(Scena[0].render, 0, Scena[0].nv);
+	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(piano.getModel())); //comunica i valori della variabile uniform Model  al vertex shader
+	glUniform1i(locSceltafs, piano.getSceltaFs());
+	glBindVertexArray(*piano.getVAO());
+	glDrawArrays(piano.getRender(), 0, piano.getNv());
 	glBindVertexArray(0);
 
-	glutSwapBuffers();
+	glutSwapBuffers(); 
 
 }
 void updateScale(int value) {
@@ -109,7 +107,7 @@ int main(int argc, char* argv[])
 	glewInit();
 
 	Shader::INIT_SHADER();
-	INIT_VAO();
+	INIT_VAO(&piano,&Scena);
 	//Init VAO per la gestione del disegno
 
 	INIT_VAO_Text();

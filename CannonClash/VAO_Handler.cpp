@@ -1,19 +1,37 @@
 #include "Lib.h"
-#include "Strutture.h"
-#include "geometria.h"
-//#include "Hermite.h"
-#include "Gestione_VAO.h"
+#include "VAO_Handler.h"
 #include "Shader.h"
+#include "geometria.h"
+#include "Entity.h"
 
-extern Forma piano;
-extern vector<Forma> Scena;
 extern unsigned int VAO_Text, VBO_Text;
 #pragma warning(disable:4996)
 
 extern mat4 Projection;
 extern GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltafs;
 
+void INIT_VAO(Entity* entity)
+{
 
+glGenVertexArrays(1, entity->getVAO());
+glBindVertexArray( *entity->getVAO());
+//Genero , rendo attivo, riempio il VBO della geometria dei vertici
+glGenBuffers(1, entity->getVBO_G());
+glBindBuffer(GL_ARRAY_BUFFER, *entity->getVBO_G());
+glBufferData(GL_ARRAY_BUFFER, entity->getVerticiSize() * sizeof(vec3), entity->getVerticiData(), GL_STATIC_DRAW);
+
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+glEnableVertexAttribArray(0);
+
+//Genero , rendo attivo, riempio il VBO dei colori
+glGenBuffers(1, entity->getVBO_C());
+glBindBuffer(GL_ARRAY_BUFFER, *entity->getVBO_C());
+glBufferData(GL_ARRAY_BUFFER, entity->getColorsSize() * sizeof(vec4), entity->getVerticiData(), GL_STATIC_DRAW);
+//Adesso carico il VBO dei colori nel layer 2
+glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+glEnableVertexAttribArray(1);
+
+}
 void INIT_VAO_Text(void)
 {
 
@@ -30,12 +48,12 @@ void INIT_VAO_Text(void)
 	glBindVertexArray(0);
 }
 
-void INIT_VAO(void)
+void INIT_VAO(Entity* piano, Scene* Scena)
 {
-	costruisci_piano(&piano);
-	crea_VAO_Vector(&piano);
-	Scena.push_back(piano);
-
+	costruisci_piano(piano);
+	INIT_VAO(piano);
+	Scena->addEntity(*piano);
+	get_ShaderLocation();
 	/*Farf.nTriangles = 180;
 	Farf.s = 0.2;
 	costruisci_farfalla(0.0, 0.0, Farf.s, Farf.s, &Farf);
@@ -73,9 +91,15 @@ void INIT_VAO(void)
 	*/
 
 
+
+
+
+
+}
+
+void get_ShaderLocation(void)
+{
 	//Projection   la matrice che mappa la finestra sul mondo nelle coordinate NDC (cormalizzate di device che trariano tra (-1,1) ed (1,1)
-
-
 	//Viene ricavata la location della variabile Uniform Projection presente nel fragment shader
 	MatProj = glGetUniformLocation(Shader::getProgramId(), "Projection");
 	//Viene ricavata la location della variabile Uniform Model presente nel fragment shader
@@ -84,5 +108,4 @@ void INIT_VAO(void)
 	locres = glGetUniformLocation(Shader::getProgramId(), "resolution");
 
 	locSceltafs = glGetUniformLocation(Shader::getProgramId(), "scelta_fs");
-
 }
