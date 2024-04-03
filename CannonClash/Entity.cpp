@@ -81,11 +81,7 @@ void Entity::Build(float cx, float cy, float raggiox, float raggioy, Entity* ent
 	entity->setSceltaFs(0);
 	entity->setRender(GL_TRIANGLE_STRIP);
 }
-void Entity::update(int value)
-{
-	glutTimerFunc(32,farfallaUpdate, 0, this);
-	glutPostRedisplay();
-}
+
 
 void Scene::addEntity(Entity entity)
 {
@@ -121,10 +117,6 @@ void Cuore::Build(float cx, float cy, float raggiox, float raggioy, Entity* fig)
 	fig->setSceltaFs(1);
 	fig->setRender(GL_TRIANGLE_FAN);
 
-}
-
-void Cuore::update(int value)
-{
 }
 
 void Farfalla::Build(float cx, float cy, float raggiox, float raggioy, Entity* fig)
@@ -200,14 +192,3 @@ void Farfalla::Build(float cx, float cy, float raggiox, float raggioy, Entity* f
 	fig->setNv(fig->getVerticiSize());
 }
 
-void farfallaUpdate(int value, Entity* farfalla) {
-	farfalla->update(value);
-}
-
-void Farfalla::update(int value)
-{
-	dx_f = dx_f + 0.01;
-
-	glutTimerFunc(64, farfallaUpdate, 0,this);
-	glutPostRedisplay();
-}

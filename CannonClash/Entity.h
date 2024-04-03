@@ -88,7 +88,6 @@ private:
 
 		Entity();
 		virtual void Build(float cx, float cy, float raggiox, float raggioy, Entity* fig);
-		virtual void update(int value);
 
 		void addVertice(vec3 vertice);
 		void addColor(vec4 color);
@@ -108,7 +107,6 @@ class Cuore : public Entity
 public:
 	// Implementazione del metodo Build per la classe Cuore
 	virtual void Build(float cx, float cy, float raggiox, float raggioy, Entity* fig) override;
-	virtual void update(int value) override;
 };
 
 class Farfalla : public Entity
@@ -117,6 +115,5 @@ public:
 	float dx_f = 0.0,dy_f = 0.0;
 	// Implementazione del metodo Build per la classe Cuore
 	virtual void Build(float cx, float cy, float raggiox, float raggioy, Entity* fig) override;
-	virtual void update(int value) override;
 
 };

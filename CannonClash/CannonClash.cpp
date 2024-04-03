@@ -130,7 +130,6 @@ int main(int argc, char* argv[])
 	glutCreateWindow("Cannon Clash");
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(drawScene);
-	glutTimerFunc(64, update, 0);
 	/*glutKeyboardFunc(keyboardFunc);
 	glutKeyboardUpFunc(keyboardReleasedEvent);
 	glutTimerFunc(250, update_Barca, 0); //gestione evento oziosit : viene richiamata la funzione updateScale ogni 250 millisecondi che aggiorna i parametri di scalatura e forza il ridisegno
