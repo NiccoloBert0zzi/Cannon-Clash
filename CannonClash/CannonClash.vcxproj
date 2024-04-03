@@ -132,7 +132,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
-    <ClInclude Include="geometria.h" />
     <ClInclude Include="Text_Handler.h" />
     <ClInclude Include="VAO_Handler.h" />
     <ClInclude Include="Lib.h" />
@@ -142,7 +141,6 @@
   <ItemGroup>
     <ClCompile Include="CannonClash.cpp" />
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="geometria.cpp" />
     <ClCompile Include="Text_Handler.cpp" />
     <ClCompile Include="VAO_Handler.cpp" />
     <ClCompile Include="Shader.cpp" />

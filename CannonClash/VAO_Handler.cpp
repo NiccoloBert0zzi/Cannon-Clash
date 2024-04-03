@@ -12,24 +12,32 @@ extern GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, loc
 void INIT_VAO(Entity* entity)
 {
 
-glGenVertexArrays(1, entity->getVAO());
-glBindVertexArray( *entity->getVAO());
-//Genero , rendo attivo, riempio il VBO della geometria dei vertici
-glGenBuffers(1, entity->getVBO_G());
-glBindBuffer(GL_ARRAY_BUFFER, *entity->getVBO_G());
-glBufferData(GL_ARRAY_BUFFER, entity->getVerticiSize() * sizeof(vec3), entity->getVerticiData(), GL_STATIC_DRAW);
+	glGenVertexArrays(1, entity->getVAO());
+	glBindVertexArray(*entity->getVAO());
+	glGenBuffers(1, entity->getVerticesVBO());
+	glBindBuffer(GL_ARRAY_BUFFER, *entity->getVerticesVBO());
+	glBufferData(GL_ARRAY_BUFFER, entity->getNumberOfVertices() * sizeof(vec3), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+	glGenBuffers(1, entity->getColorsVBO());
+	glBindBuffer(GL_ARRAY_BUFFER, *entity->getColorsVBO());
+	glBufferData(GL_ARRAY_BUFFER, entity->getNumberOfVertices() * sizeof(vec4), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
 
-glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-glEnableVertexAttribArray(0);
-
-//Genero , rendo attivo, riempio il VBO dei colori
-glGenBuffers(1, entity->getVBO_C());
-glBindBuffer(GL_ARRAY_BUFFER, *entity->getVBO_C());
-glBufferData(GL_ARRAY_BUFFER, entity->getColorsSize() * sizeof(vec4), entity->getVerticiData(), GL_STATIC_DRAW);
-//Adesso carico il VBO dei colori nel layer 2
-glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-glEnableVertexAttribArray(1);
-
+}
+void UPDATE_VAO(Entity* entity) {
+	vector<vec3> vertices = *entity->getVertices();
+	vector<vec4> colors = *entity->getVerticesColors();
+	glBindVertexArray(*entity->getVAO());
+	glBindBuffer(GL_ARRAY_BUFFER, *entity->getVerticesVBO());
+	glBufferSubData(GL_ARRAY_BUFFER, 0, entity->getNumberOfVertices() * sizeof(vec3), vertices.data());
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, *entity->getColorsVBO());
+	glBufferSubData(GL_ARRAY_BUFFER, 0, entity->getNumberOfVertices() * sizeof(vec4), colors.data());
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
 }
 void INIT_VAO_Text(void)
 {
@@ -47,56 +55,18 @@ void INIT_VAO_Text(void)
 	glBindVertexArray(0);
 }
 
-void INIT_VAO(Entity* piano, Scene* Scena)
+void INIT_VAO(vector<Entity*> piano, vector<vector<Entity*>*> scene)
 {
-	piano->Build(NULL, NULL, NULL, NULL, piano);
-	INIT_VAO(piano);
-	Scena->addEntity(*piano);
+	Entity* backgroundPane = new Entity();
+	backgroundPane->changePane();
+	piano.push_back(backgroundPane);
+	scene.push_back(&piano);
+
+	for (vector<Entity*>* container : scene)
+		for (Entity* entity : *container)
+			entity->initVAO();
+
 	get_ShaderLocation();
-
-	//INSERT FARFALLA
-	Farfalla farfalla = {};
-	farfalla.setnTriangles(180);
-	farfalla.setS(0.2);
-	farfalla.Build(0.0, 0.0, farfalla.getS(), farfalla.getS(), &farfalla);
-	INIT_VAO(&farfalla);
-	farfalla.setRender(GL_TRIANGLE_FAN);
-	farfalla.setAlive(TRUE);
-	Scena->addEntity(farfalla);
-
-	/*//Sommergibile
-	vec4 color_top = vec4(0.0, 0.0, 0.0, 1.0);
-	vec4 color_bot = vec4(126.0 / 255.0, 135.0 / 255.0, 146.0 / 255.0, 1.0);
-	crea_punti_forma_da_file("sommergibile.txt", "r", &Curva);
-	vec3 centro = vec3(0.0, -0.2, 0.0);
-	costruisci_formaHermite(centro, color_top, color_bot, &Curva);
-	crea_VAO_Vector(&Curva);
-	Curva.render = GL_TRIANGLE_FAN;
-	Curva.sceltaFs = 1;
-	Scena.push_back(Curva);
-	Curva.CP.clear();
-	Curva.Derivata.clear();
-	Curva.vertici.clear();
-
-
-	//Proiettile
-	color_top = vec4(1.0, 0.0, 0.0, 1.0);
-	color_bot = vec4(1.0, 1.0, 0.0, 1.0);
-	crea_punti_forma_da_file("fiore.txt", "r", &Curva);
-	centro = vec3(-0.1, 0.1, 0.0);
-
-	costruisci_formaHermite(centro, color_top, color_bot, &Curva);
-	crea_VAO_Vector(&Curva);
-	Curva.render = GL_TRIANGLE_FAN;
-	Curva.sceltaFs = 1;
-	Scena.push_back(Curva);
-	*/
-
-
-
-
-
-
 }
 
 void get_ShaderLocation(void)

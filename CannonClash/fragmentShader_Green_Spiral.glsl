@@ -1,35 +1,50 @@
+//--- tiles
+// by Catzpaw 2017
 #ifdef GL_ES
-precision mediump float; // Precisione dei float per OpenGL ES
+precision mediump float;
 #endif
 
-uniform float time; // Tempo
-uniform vec2 mouse; // Posizione del mouse
-uniform vec2 resolution; // Risoluzione dello schermo
+#extension GL_OES_standard_derivatives : enable
 
-void main( void ) {
-    // Calcolo della posizione normalizzata del pixel nel range [-0.5, 0.5]
-    vec2 position = (gl_FragCoord.xy - resolution * 0.5) / resolution.yy;
-    
-    // Calcolo dell'angolo polare
-    float th = atan(position.y, position.x) / (2.0 * 3.1415926) + 0.5;
-    
-    // Distanza dal centro dello schermo
-    float dd = length(position);
-    
-    // Offset basato sul tempo
-    float d = 0.25 / dd + time;
+uniform float time;
+uniform vec2 mouse;
+uniform vec2 resolution;
 
-    // Combinazione di variabili per definire i canali rossi, verdi e blu
-    vec3 uv = vec3(th + d, th - d, th + sin(d) * 0.6);
-    float a = 0.5 + cos(uv.x * 3.1415926 * 2.0) * 0.5;
-    float b = 0.5 + cos(uv.y * 3.1415926 * 2.0) * 0.5;
-    float c = 0.5 + cos(uv.z * 3.1415926 * 6.0) * 0.5;
+#define PITCH 3.
+#define POWER 130.
 
-    // Calcolo del colore finale
-    vec3 color = mix(vec3(0.1, 0.8, 0.1), vec3(0.1, 0.2, 0.2), pow(a, 0.2)) * 0.75;
-    color += mix(vec3(0.1, 0.9, 0.1), vec3(0.1, 0.1, 0.2), pow(b, 0.5)) * 0.75;
-    color += mix(vec3(0.2, 0.8, 0.2), vec3(0.2, 0.1, 0.2), pow(c, 0.1)) * 0.75;
+float line(vec2 p, vec2 l) {
+    return pow(1. - length(p - l), POWER);
+}
 
-    // Assegnazione del colore al pixel
-    gl_FragColor = vec4(color * clamp(dd, 0.0, 98.0), 1.0); // Applicazione del colore al pixel con clamp sulla distanza
+float map(vec2 p) {
+    float c = line(p, vec2(p.x, floor(p.y * PITCH + .5) / PITCH)) + line(p, vec2(floor(p.x * PITCH + .5) / PITCH, p.y)) - 1e-10;
+    return clamp(c, 0., 1.);
+}
+
+void main(void) {
+    vec2 p = (gl_FragCoord.xy * 2. - resolution.xy) / min(resolution.x, resolution.y);
+
+    vec3 l = vec3(p.x + 1., p.y - 2., 2.5);    //light pos
+    vec3 ln = normalize(l);
+    float t = time * 1.09;
+
+    vec3 col = vec3(0.1, 0.4, 0.1); // Green base color
+
+    // Aggiunta di sfumatura verde/marrone basata sulla coordinata y
+    float gradient = clamp(p.y * 0.5 + 0.5, 0.0, 1.0);
+    vec3 brown = vec3(0.3, 0.2, 0.1); // Marrone più scuro
+    col = mix(col, brown, gradient);
+
+    float v = map(p);
+    if (v > .3) {
+        col = vec3(.1, .1, .1);
+    } else {
+        float dx = map(p + vec2(0.01, 0.)), dy = map(p + vec2(0., 0.01));
+        vec3 n = normalize(vec3(v - dx, v - dy, .2));
+        v = pow(clamp(dot(ln, n), 0., 1.), 8.);
+        col += v;
+    }
+
+    gl_FragColor = vec4(col, 1);
 }

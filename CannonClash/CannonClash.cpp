@@ -15,8 +15,8 @@
 unsigned int VAO_Text, VBO_Text;
 
 //init
-Scene Scena;
-Entity piano = {};
+vector<vector<Entity*>*> scene;
+vector<Entity*> piano;
 //Forma Curva = {}, Poligonale = {}, Derivata = {}, shape = {};
 
 mat4 Projection;
@@ -51,8 +51,6 @@ void reshape(int w, int h)
 }
 void drawScene(void)
 {
-	int k;
-
 	glClearColor(0.0, 0.0, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -60,57 +58,37 @@ void drawScene(void)
 
 	vec2 resolution = vec2(w_update, h_update);
 
-	glUniform1f(loctime, time);
-	glUniform2f(locres, resolution.x, resolution.y);
-
-
-	Entity piano = Scena.getEntity(0);
-	piano.setModel(mat4(1.0));
-	piano.setModel(translate(piano.getModel(), vec3(0.5, 0.5, 0.0)));
-	piano.setModel(scale(piano.getModel(), vec3((float)width, (float)height, 1.0)));
-	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));  //comunica i valori della variabile uniform Projection al vertex shader
-	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(piano.getModel())); //comunica i valori della variabile uniform Model  al vertex shader
-	glUniform1i(locSceltafs, piano.getSceltaFs());
-	glBindVertexArray(*piano.getVAO());
-	glDrawArrays(piano.getRender(), 0, piano.getNv());
-	glBindVertexArray(0);
-
-	/*Matrice di modellazione farfalla */
-	Entity e = Scena.getEntity(1);
-	Farfalla farfalla = static_cast<Farfalla&>(e);
-	farfalla.setModel(mat4(1.0));
-	for (size_t i = 0; i < 2; i++)
+	for (vector<Entity*>* container : scene)
 	{
-		farfalla.setModel(translate(farfalla.getModel(), vec3(900.0 + 50 * cos(farfalla.dx_f), 500.0 + 50 * sin(farfalla.dx_f), 0.0)));
-		farfalla.setModel(scale(farfalla.getModel(), vec3(80.5, 80.5, 1.0)));
-		//Agiornamento in coordinate del mondo delle coordinate del Bounding Box della Farfalla
-		farfalla.setCorner_b(farfalla.getCorner_b_obj());
-		farfalla.setCorner_t(farfalla.getCorner_t_obj());
-		farfalla.setCorner_b(farfalla.getModel() * farfalla.getCorner_b());
-		farfalla.setCorner_t(farfalla.getModel() * farfalla.getCorner_t());
+		for (Entity* entity : *container)
+		{
+			*entity->getModel() = mat4(1.0);
+			*entity->getModel() = translate(*entity->getModel(), vec3(entity->getXShiftValue(), entity->getYShiftValue(), 0.0f));
+			*entity->getModel() = scale(*entity->getModel(), vec3(entity->getXScaleValue(), entity->getYScaleValue(), 1.0f));
+			*entity->getModel() = rotate(*entity->getModel(), radians(entity->getRotationValue()), vec3(0.0f, 0.0f, 1.0f));
+			glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
+			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(*entity->getModel()));
+			glUniform2f(locres, width, height);
+			if (entity->isBackgroundComponent())
+				glUniform1i(locSceltafs, 1);
+			else
+				glUniform1i(locSceltafs, 0);
+			glUniform1f(loctime, time);
+			glBindVertexArray(*entity->getVAO());
+			glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNumberOfVertices());
+			glBindVertexArray(0);
+		}
 	}
 
-	//Disegno la farfalla fino a quando non sia avvenuta la prima collisione con la palla del cannone
-
-	if (farfalla.getAlive() == TRUE)
-	{
-		glUniform1i(locSceltafs, farfalla.getSceltaFs());
-		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(farfalla.getModel()));
-		glBindVertexArray(*farfalla.getVAO());
-		glDrawArrays(GL_TRIANGLE_FAN, 0, farfalla.getNv() - 6);
-		if (drawBB == TRUE)
-			//		//Disegno Bounding Box
-			glDrawArrays(GL_LINE_STRIP, farfalla.getNv() - 6, 6);
-		glBindVertexArray(0);
-	}
-	else
-		RenderText(Shader::getProgramId_text(), Projection, "GAME OVER", VAO_Text, VBO_Text, 100.0f, 600.0f, 1.0f, glm::vec3(1.0, 1.0f, 0.2f));
 	glUseProgram(Shader::getProgramId());
 
-	glutSwapBuffers(); 
+	glutSwapBuffers();
 
 }
 void updateScale(int value) {
+	for (vector<Entity*>* container : scene)
+		for (Entity* entity : *container)
+			entity->updateVAO();
 	glutTimerFunc(32, updateScale, 0);
 	glutPostRedisplay();
 }
@@ -126,7 +104,7 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
 	glutInitWindowSize(width, height);
-	glutInitWindowPosition(100, 100);
+	glutInitWindowPosition(50, 50);
 	glutCreateWindow("Cannon Clash");
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(drawScene);
@@ -140,7 +118,7 @@ int main(int argc, char* argv[])
 	glewInit();
 
 	Shader::INIT_SHADER();
-	INIT_VAO(&piano,&Scena);
+	INIT_VAO(piano, scene);
 	//Init VAO per la gestione del disegno
 
 	INIT_VAO_Text();
