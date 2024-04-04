@@ -17,6 +17,16 @@ typedef struct {
 	vec3 cornerTop;
 } Hitbox;
 
+static vector<vec3> createRectangle(float width, float height) {
+	vector<vec3> vertices;
+	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
+	vertices.push_back(vec3(width / 2, height / 2, 0.0f));
+	vertices.push_back(vec3(-width / 2, height / 2, 0.0f));
+	vertices.push_back(vec3(-width / 2, -height / 2, 0.0f));
+	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
+	return vertices;
+}
+
 class Entity {
 
 public:
@@ -64,5 +74,5 @@ public:
 	Hitbox getHitboxWorldCoordinates();
 	bool isBackgroundComponent();
 	void changePane();
-
+	void build();
 };

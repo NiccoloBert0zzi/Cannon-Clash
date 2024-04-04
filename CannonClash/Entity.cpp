@@ -179,3 +179,12 @@ void Entity::changePane()
 {
 	backgroundComponent = !backgroundComponent;
 }
+
+void Entity::build()
+{
+	this->createPolygonalShape(createRectangle(2.0f, 2.0f), vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(0.0f, 0.0f, 0.0f, 0.0f));
+	this->setXScaleValue((float)width);
+	this->setYScaleValue((float)height);
+	this->setXShiftValue((float)width / 2);
+	this->setYShiftValue((float)height / 2);
+}

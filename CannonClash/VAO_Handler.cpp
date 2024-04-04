@@ -55,14 +55,15 @@ void INIT_VAO_Text(void)
 	glBindVertexArray(0);
 }
 
-void INIT_VAO(vector<Entity*> piano, vector<vector<Entity*>*> scene)
+void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 {
 	Entity* backgroundPane = new Entity();
+	backgroundPane->build();
 	backgroundPane->changePane();
-	piano.push_back(backgroundPane);
-	scene.push_back(&piano);
+	piano->push_back(backgroundPane);
+	scene->push_back(piano);
 
-	for (vector<Entity*>* container : scene)
+	for (vector<Entity*>* container : *scene)
 		for (Entity* entity : *container)
 			entity->initVAO();
 

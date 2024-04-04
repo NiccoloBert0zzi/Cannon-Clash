@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 	glewInit();
 
 	Shader::INIT_SHADER();
-	INIT_VAO(piano, scene);
+	INIT_VAO(&piano, &scene);
 	//Init VAO per la gestione del disegno
 
 	INIT_VAO_Text();
