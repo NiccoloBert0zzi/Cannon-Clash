@@ -29,10 +29,10 @@ static vector<vec3> createRectangle(float width, float height) {
 
 class Entity {
 
-public:
+private:
 	Hitbox hitbox;
 	GLuint VAO;
-	GLuint VBO_V;
+	GLuint VBO_G;
 	GLuint VBO_C;
 	vector<vec3> vertices;
 	vector<vec4> colors;
@@ -42,7 +42,7 @@ public:
 	float xScaleValue;			// Valore di scalatura per la x
 	float yScaleValue;			// Valore di scalatura per la y
 	float rotationValue;		// Valore di rotazione
-	bool backgroundComponent;	// true se fa parte dello sfondo, false altrimenti
+	bool backgroundChecker;	// true se fa parte dello sfondo, false altrimenti
 
 public:
 	Entity();
@@ -51,11 +51,11 @@ public:
 	void initVAO();
 	void updateVAO();
 	GLuint* getVAO();
-	GLuint* getVerticesVBO();
-	GLuint* getColorsVBO();
+	GLuint* getVBO_G();
+	GLuint* getVBO_C();
 	vector<vec3>* getVertices();
 	vector<vec4>* getVerticesColors();
-	int getNumberOfVertices();
+	int getNV();
 	mat4* getModel();
 	float getXShiftValue();
 	float getYShiftValue();
@@ -69,10 +69,23 @@ public:
 	void setRotationValue(float value);
 	Hitbox getHitbox();
 	vec3 getMidPoint();
-	float getWidth();
-	float getHeight();
+	float getEntityWidth();
+	float getEntityHeight();
 	Hitbox getHitboxWorldCoordinates();
-	bool isBackgroundComponent();
+	bool isBackground();
 	void changePane();
 	void build();
+};
+
+class Hearth :public Entity {
+
+	private:
+		bool alive;
+
+	public:
+		Hearth();
+		void build(float size);
+		vector<vec3> createHearth(float rx, float ry, int precision);
+		void setAlive(bool value);
+		bool isAlive();
 };

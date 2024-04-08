@@ -25,30 +25,7 @@ GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltaf
 // viewport size
 int width = 1280;
 int height = 720;
-float w_update, h_update;
-float dx_t = 0, dy_t = 0;
-bool drawBB = TRUE;
 
-void reshape(int w, int h)
-{
-	Projection = ortho(0.0f, (float)width, 0.0f, (float)height);
-
-	float AspectRatio_mondo = (float)(width) / (float)(height); //Rapporto larghezza altezza di tutto ci  che   nel mondo
-	//Se l'aspect ratio del mondo   diversa da quella della finestra devo mappare in modo diverso 
-	//per evitare distorsioni del disegno
-	if (AspectRatio_mondo > w / h)   //Se ridimensioniamo la larghezza della Viewport
-	{
-		glViewport(0, 0, w, w / AspectRatio_mondo);
-		w_update = (float)w;
-		h_update = w / AspectRatio_mondo;
-	}
-	else {  //Se ridimensioniamo la larghezza della viewport oppure se l'aspect ratio tra la finestra del mondo 
-		//e la finestra sullo schermo sono uguali
-		glViewport(0, 0, h * AspectRatio_mondo, h);
-		w_update = h * AspectRatio_mondo;
-		h_update = (float)h;
-	}
-}
 void drawScene(void)
 {
 	glClearColor(0.0, 0.0, 0.5, 1.0);
@@ -56,7 +33,7 @@ void drawScene(void)
 
 	float time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
 
-	vec2 resolution = vec2(w_update, h_update);
+	vec2 resolution = vec2(width, height);
 
 	for (vector<Entity*>* container : scene)
 	{
@@ -69,21 +46,18 @@ void drawScene(void)
 			glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
 			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(*entity->getModel()));
 			glUniform2f(locres, width, height);
-			if (entity->isBackgroundComponent())
+			if (entity->isBackground())
 				glUniform1i(locSceltafs, 1);
 			else
 				glUniform1i(locSceltafs, 0);
 			glUniform1f(loctime, time);
 			glBindVertexArray(*entity->getVAO());
-			glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNumberOfVertices());
+			glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNV());
 			glBindVertexArray(0);
 		}
 	}
-
-	glUseProgram(Shader::getProgramId());
-
 	glutSwapBuffers();
-
+	glUseProgram(Shader::getProgramId());
 }
 void updateScale(int value) {
 	for (vector<Entity*>* container : scene)
@@ -106,7 +80,6 @@ int main(int argc, char* argv[])
 	glutInitWindowSize(width, height);
 	glutInitWindowPosition(50, 50);
 	glutCreateWindow("Cannon Clash");
-	glutReshapeFunc(reshape);
 	glutDisplayFunc(drawScene);
 	/*glutKeyboardFunc(keyboardFunc);
 	glutKeyboardUpFunc(keyboardReleasedEvent);

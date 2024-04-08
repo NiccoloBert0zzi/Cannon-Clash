@@ -14,14 +14,14 @@ void INIT_VAO(Entity* entity)
 
 	glGenVertexArrays(1, entity->getVAO());
 	glBindVertexArray(*entity->getVAO());
-	glGenBuffers(1, entity->getVerticesVBO());
-	glBindBuffer(GL_ARRAY_BUFFER, *entity->getVerticesVBO());
-	glBufferData(GL_ARRAY_BUFFER, entity->getNumberOfVertices() * sizeof(vec3), NULL, GL_DYNAMIC_DRAW);
+	glGenBuffers(1, entity->getVBO_G());
+	glBindBuffer(GL_ARRAY_BUFFER, *entity->getVBO_G());
+	glBufferData(GL_ARRAY_BUFFER, entity->getNV() * sizeof(vec3), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
-	glGenBuffers(1, entity->getColorsVBO());
-	glBindBuffer(GL_ARRAY_BUFFER, *entity->getColorsVBO());
-	glBufferData(GL_ARRAY_BUFFER, entity->getNumberOfVertices() * sizeof(vec4), NULL, GL_DYNAMIC_DRAW);
+	glGenBuffers(1, entity->getVBO_C());
+	glBindBuffer(GL_ARRAY_BUFFER, *entity->getVBO_C());
+	glBufferData(GL_ARRAY_BUFFER, entity->getNV() * sizeof(vec4), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(1);
 
@@ -30,12 +30,12 @@ void UPDATE_VAO(Entity* entity) {
 	vector<vec3> vertices = *entity->getVertices();
 	vector<vec4> colors = *entity->getVerticesColors();
 	glBindVertexArray(*entity->getVAO());
-	glBindBuffer(GL_ARRAY_BUFFER, *entity->getVerticesVBO());
-	glBufferSubData(GL_ARRAY_BUFFER, 0, entity->getNumberOfVertices() * sizeof(vec3), vertices.data());
+	glBindBuffer(GL_ARRAY_BUFFER, *entity->getVBO_G());
+	glBufferSubData(GL_ARRAY_BUFFER, 0, entity->getNV() * sizeof(vec3), vertices.data());
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, *entity->getColorsVBO());
-	glBufferSubData(GL_ARRAY_BUFFER, 0, entity->getNumberOfVertices() * sizeof(vec4), colors.data());
+	glBindBuffer(GL_ARRAY_BUFFER, *entity->getVBO_C());
+	glBufferSubData(GL_ARRAY_BUFFER, 0, entity->getNV() * sizeof(vec4), colors.data());
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(1);
 }
@@ -61,17 +61,31 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 	backgroundPane->build();
 	backgroundPane->changePane();
 	piano->push_back(backgroundPane);
-	scene->push_back(piano);
 
-	for (vector<Entity*>* container : *scene)
-		for (Entity* entity : *container)
+	vector<Entity*>* lives = new vector<Entity*>(); // Vettore di puntatori a Entity
+	for (int i = 0; i < 3; i++) {
+		Hearth* hearth = new Hearth();
+		hearth->build(0.2f);
+		lives->push_back(hearth);
+	}
+
+	//scene->push_back(piano); // Inserisci il vettore del piano
+	scene->push_back(lives); // Inserisci il vettore delle vite
+
+	for (vector<Entity*>* container : *scene) {
+		for (Entity* entity : *container) {
 			entity->initVAO();
+		}
+	}
 
 	get_ShaderLocation();
 }
 
+
+
 void get_ShaderLocation(void)
 {
+	Projection = ortho(0.0f, (float)width, 0.0f, (float)height);
 	//Projection   la matrice che mappa la finestra sul mondo nelle coordinate NDC (cormalizzate di device che trariano tra (-1,1) ed (1,1)
 	//Viene ricavata la location della variabile Uniform Projection presente nel fragment shader
 	MatProj = glGetUniformLocation(Shader::getProgramId(), "Projection");
@@ -81,4 +95,6 @@ void get_ShaderLocation(void)
 	locres = glGetUniformLocation(Shader::getProgramId(), "resolution");
 
 	locSceltafs = glGetUniformLocation(Shader::getProgramId(), "scelta_fs");
+	glViewport(0, 0, width, height);
+
 }

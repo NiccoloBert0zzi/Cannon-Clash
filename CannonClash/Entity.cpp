@@ -8,10 +8,13 @@ using namespace glm;
 #define DEFAULT_SIZE 25.0f
 #define DEFAULT_PROJECTILE_SPEED 10.0f
 #define P_VAL 100
+#define PI 3.14159265358979323846
+static int xOffset = 0;
+#pragma region Entity
 
 Entity::Entity()
 {
-	backgroundComponent = false;
+	backgroundChecker = false;
 	xShiftValue = 0.0f;
 	yShiftValue = 0.0f;
 	xScaleValue = DEFAULT_SIZE;
@@ -43,7 +46,6 @@ void Entity::createPolygonalShape(vector<vec3> polygonVertices, vec4 color1, vec
 	hitbox.cornerTop = vec3(xMax, yMax, 0.0f);
 }
 
-
 void Entity::initVAO()
 {
 	INIT_VAO(this);
@@ -59,12 +61,12 @@ GLuint* Entity::getVAO()
 	return &VAO;
 }
 
-GLuint* Entity::getVerticesVBO()
+GLuint* Entity::getVBO_G()
 {
-	return &VBO_V;
+	return &VBO_G;
 }
 
-GLuint* Entity::getColorsVBO()
+GLuint* Entity::getVBO_C()
 {
 	return &VBO_C;
 }
@@ -79,7 +81,7 @@ vector<vec4>* Entity::getVerticesColors()
 	return &colors;
 }
 
-int Entity::getNumberOfVertices()
+int Entity::getNV()
 {
 	return vertices.size();
 }
@@ -151,12 +153,12 @@ vec3 Entity::getMidPoint()
 	return vec3(x, y, 0.0f);
 }
 
-float Entity::getWidth()
+float Entity::getEntityWidth()
 {
 	return hitbox.cornerTop.x - hitbox.cornerBot.x;
 }
 
-float Entity::getHeight()
+float Entity::getEntityHeight()
 {
 	return hitbox.cornerTop.y - hitbox.cornerBot.y;
 }
@@ -170,14 +172,14 @@ Hitbox Entity::getHitboxWorldCoordinates()
 	return { vec3(xBottom, yBottom, 0.0f), vec3(xTop, yTop, 0.0f) };
 }
 
-bool Entity::isBackgroundComponent()
+bool Entity::isBackground()
 {
-	return backgroundComponent;
+	return backgroundChecker;
 }
 
 void Entity::changePane()
 {
-	backgroundComponent = !backgroundComponent;
+	backgroundChecker = !backgroundChecker;
 }
 
 void Entity::build()
@@ -188,3 +190,45 @@ void Entity::build()
 	this->setXShiftValue((float)width / 2);
 	this->setYShiftValue((float)height / 2);
 }
+
+#pragma endregion
+
+#pragma region Heart
+Hearth::Hearth() : Entity() {
+	alive = true;
+}
+
+void Hearth::build(float size)
+{
+	float border_space = 0.4f * 25.0f;
+	vec4 red = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	this->createPolygonalShape(createHearth(size, size, 100), red, red);
+	this->setYShiftValue((float)height - this->getEntityHeight() / 2 * this->getYScaleValue() - border_space);
+	this->setXShiftValue((float)width-(border_space + this->getEntityWidth() / 2 * this->getXScaleValue() + xOffset * (this->getEntityWidth() * this->getXScaleValue() + 5.0f)));
+	xOffset++;
+}
+
+vector<vec3> Hearth::createHearth(float rx, float ry, int precision)
+{
+	float step = 2 * PI / precision;
+	vector<vec3> vertices;
+	for (int i = 0; i <= precision + 2; i++) {
+		float theta_i = (float)i * step;
+		float x = rx * 16 * pow(sin(theta_i), 3);
+		float y = ry * (13 * cos(theta_i) - 5 * cos(2 * theta_i) - 2 * cos(3 * theta_i) - cos(4 * theta_i));
+		vertices.push_back(vec3(x, y, 0.0f));
+	}
+	return vertices;
+}
+
+void Hearth::setAlive(bool value)
+{
+	//TODO check collision
+	alive = value;
+}
+
+bool Hearth::isAlive()
+{
+	return false;
+}
+#pragma endregion
