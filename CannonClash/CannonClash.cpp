@@ -26,43 +26,58 @@ GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltaf
 int width = 1280;
 int height = 720;
 
+void drawEntity(Entity* entity)
+{
+	float time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+	*entity->getModel() = mat4(1.0);
+	*entity->getModel() = translate(*entity->getModel(), vec3(entity->getXShiftValue(), entity->getYShiftValue(), 0.0f));
+	*entity->getModel() = scale(*entity->getModel(), vec3(entity->getXScaleValue(), entity->getYScaleValue(), 1.0f));
+	*entity->getModel() = rotate(*entity->getModel(), radians(entity->getRotationValue()), vec3(0.0f, 0.0f, 1.0f));
+	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
+	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(*entity->getModel()));
+	glUniform2f(locres, width, height);
+	if (entity->isBackground())
+		glUniform1i(locSceltafs, 1);
+	else
+		glUniform1i(locSceltafs, 0);
+	glUniform1f(loctime, time);
+	glBindVertexArray(*entity->getVAO());
+	glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNV());
+	glBindVertexArray(0);
+}
+
 void drawScene(void)
 {
 	glClearColor(0.0, 0.0, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	float time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-
-	vec2 resolution = vec2(width, height);
-
 	for (vector<Entity*>* container : scene)
 	{
 		for (Entity* entity : *container)
 		{
-			*entity->getModel() = mat4(1.0);
-			*entity->getModel() = translate(*entity->getModel(), vec3(entity->getXShiftValue(), entity->getYShiftValue(), 0.0f));
-			*entity->getModel() = scale(*entity->getModel(), vec3(entity->getXScaleValue(), entity->getYScaleValue(), 1.0f));
-			*entity->getModel() = rotate(*entity->getModel(), radians(entity->getRotationValue()), vec3(0.0f, 0.0f, 1.0f));
-			glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
-			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(*entity->getModel()));
-			glUniform2f(locres, width, height);
-			if (entity->isBackground())
-				glUniform1i(locSceltafs, 1);
-			else
-				glUniform1i(locSceltafs, 0);
-			glUniform1f(loctime, time);
-			glBindVertexArray(*entity->getVAO());
-			glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNV());
-			glBindVertexArray(0);
+			if (entity->getType() == Type::PLAYER) {
+				Player* player = dynamic_cast<Player*>(entity);
+				drawEntity(player->getCannon());
+				drawEntity(player->getWheel());
+			}
+			drawEntity(entity);
 		}
 	}
 	glutSwapBuffers();
 	glUseProgram(Shader::getProgramId());
 }
+
 void updateScale(int value) {
-	for (vector<Entity*>* container : scene)
-		for (Entity* entity : *container)
+	for (vector<Entity*>* container : scene) {
+		for (Entity* entity : *container) {
+			if (entity->getType() == Type::PLAYER) {
+				Player* player = dynamic_cast<Player*>(entity);
+				player->getCannon()->updateVAO();
+				player->getWheel()->updateVAO();
+			}
 			entity->updateVAO();
+		}
+	}
 	glutTimerFunc(32, updateScale, 0);
 	glutPostRedisplay();
 }

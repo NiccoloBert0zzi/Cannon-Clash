@@ -12,7 +12,7 @@ using namespace glm;
 static int xOffset = 0;
 #pragma region Entity
 
-Entity::Entity()
+Entity::Entity(Type t)
 {
 	backgroundChecker = false;
 	xShiftValue = 0.0f;
@@ -20,6 +20,7 @@ Entity::Entity()
 	xScaleValue = DEFAULT_SIZE;
 	yScaleValue = DEFAULT_SIZE;
 	rotationValue = 0.0f;
+	type = t;
 }
 
 void Entity::createPolygonalShape(vector<vec3> polygonVertices, vec4 color1, vec4 color2)
@@ -191,10 +192,15 @@ void Entity::build()
 	this->setYShiftValue((float)height / 2);
 }
 
+Type Entity::getType()
+{
+	return type;
+}
+
 #pragma endregion
 
 #pragma region Heart
-Hearth::Hearth() : Entity() {
+Hearth::Hearth() : Entity(Type::HEART) {
 	alive = true;
 }
 
@@ -232,3 +238,77 @@ bool Hearth::isAlive()
 	return false;
 }
 #pragma endregion
+
+#pragma region Player
+Player::Player() : Entity(Type::PLAYER)
+{
+
+	score = 0;
+	alive = true;
+	cannon = new Entity(Type::CANNON);
+	wheel = new Entity(Type::WHEEL);
+
+}
+void Player::build()
+{
+	vec4 cannon_wheel = vec4(0.58f, 0.39f, 0.03f, 1.0f);
+	vec4 white_center = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+	wheel->createPolygonalShape(createCircle(1.5f, 1.5f, 100), cannon_wheel, white_center);
+	cannon->createPolygonalShape(createRectangle(1.5f, 1.5f), cannon_wheel, white_center);
+	this->setXShiftValue(width / 2);
+	this->setYShiftValue(height / 2);
+}
+
+void Player::setScore(int value)
+{
+	score = value;
+}
+
+void Player::setAlive(bool value)
+{
+	alive = value;
+}
+
+int Player::getScore()
+{
+	return score;
+}
+
+bool Player::isAlive()
+{
+	return alive;
+}
+
+Entity* Player::getCannon()
+{
+	return cannon;
+}
+
+Entity* Player::getWheel()
+{
+	return wheel;
+}
+
+vector<vec3> Player::createCircle(float rx, float ry, int precision)
+{
+	float step = 2 * PI / precision;
+	vector<vec3> vertices;
+	for (int i = 0; i <= precision + 2; i++) {
+		float theta_i = (float)i * step;
+		vertices.push_back(vec3(rx * cos(theta_i), ry * sin(theta_i), 0.0f));
+	}
+	return vertices;
+}
+vector<vec3> Player::createRectangle(float width, float height)
+{
+	vector<vec3> vertices;
+	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
+	vertices.push_back(vec3(width / 2, height / 2, 0.0f));
+	vertices.push_back(vec3(-width / 2, height / 2, 0.0f));
+	vertices.push_back(vec3(-width / 2, -height / 2, 0.0f));
+	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
+	return vertices;
+}
+#pragma endregion
+
+

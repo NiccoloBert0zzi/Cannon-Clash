@@ -17,6 +17,15 @@ typedef struct {
 	vec3 cornerTop;
 } Hitbox;
 
+enum Type
+{
+	BACKGROUND,
+	HEART,
+	PLAYER,
+	CANNON,
+	WHEEL
+};
+
 static vector<vec3> createRectangle(float width, float height) {
 	vector<vec3> vertices;
 	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
@@ -43,9 +52,11 @@ private:
 	float yScaleValue;			// Valore di scalatura per la y
 	float rotationValue;		// Valore di rotazione
 	bool backgroundChecker;	// true se fa parte dello sfondo, false altrimenti
+	Type type;
 
 public:
-	Entity();
+	Entity(Type t);
+	virtual ~Entity() {} // Funzione virtuale di distruttore
 	void createPolygonalShape(vector<vec3> polygonVertices, vec4 color1, vec4 color2);
 	void createHermiteShape(vector<vec3> controlPoints, vec3 center, vec4 color1, vec4 color2);
 	void initVAO();
@@ -75,17 +86,39 @@ public:
 	bool isBackground();
 	void changePane();
 	void build();
+	Type getType();
 };
 
 class Hearth :public Entity {
 
 	private:
 		bool alive;
+		vector<vec3> createHearth(float rx, float ry, int precision);
 
 	public:
 		Hearth();
 		void build(float size);
-		vector<vec3> createHearth(float rx, float ry, int precision);
 		void setAlive(bool value);
 		bool isAlive();
+};
+
+class Player :public Entity {
+
+	private:
+		int score;
+		bool alive;
+		Entity* cannon;
+		Entity* wheel;
+		vector<vec3> createCircle(float rx, float ry, int precision);
+		vector<vec3> createRectangle(float width, float height);
+
+	public:
+		Player();
+		void build();
+		void setScore(int value);
+		void setAlive(bool value);
+		int getScore();
+		bool isAlive();
+		Entity* getCannon();
+		Entity* getWheel();
 };

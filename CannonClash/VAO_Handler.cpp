@@ -57,20 +57,29 @@ void INIT_VAO_Text(void)
 
 void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 {
-	Entity* backgroundPane = new Entity();
+	//background
+	Entity* backgroundPane = new Entity(Type::BACKGROUND);
 	backgroundPane->build();
 	backgroundPane->changePane();
 	piano->push_back(backgroundPane);
 
-	vector<Entity*>* lives = new vector<Entity*>(); // Vettore di puntatori a Entity
+	//heart
+	vector<Entity*>* lives = new vector<Entity*>();
 	for (int i = 0; i < 3; i++) {
 		Hearth* hearth = new Hearth();
-		hearth->build(0.2f);
+		hearth->build(0.04f);
 		lives->push_back(hearth);
 	}
 
-	//scene->push_back(piano); // Inserisci il vettore del piano
-	scene->push_back(lives); // Inserisci il vettore delle vite
+	//player
+	vector<Entity*>* players = new vector<Entity*>();
+	Player* player = new Player();
+	players->push_back(player);
+	player->build();
+
+	scene->push_back(piano);
+	scene->push_back(lives);
+	scene->push_back(players);
 
 	for (vector<Entity*>* container : *scene) {
 		for (Entity* entity : *container) {
