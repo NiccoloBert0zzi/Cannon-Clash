@@ -9,7 +9,7 @@ using namespace glm;
 #define DEFAULT_PROJECTILE_SPEED 10.0f
 #define P_VAL 100
 #define PI 3.14159265358979323846
-static int xOffset = 0;
+static int xOffset_heart_build = 0;
 #pragma region Entity
 
 Entity::Entity(Type t)
@@ -200,21 +200,21 @@ Type Entity::getType()
 #pragma endregion
 
 #pragma region Heart
-Hearth::Hearth() : Entity(Type::HEART) {
+Heart::Heart() : Entity(Type::HEART) {
 	alive = true;
 }
 
-void Hearth::build(float size)
+void Heart::build(float size)
 {
 	float border_space = 0.4f * 25.0f;
 	vec4 red = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 	this->createPolygonalShape(createHearth(size, size, 100), red, red);
 	this->setYShiftValue((float)height - this->getEntityHeight() / 2 * this->getYScaleValue() - border_space);
-	this->setXShiftValue((float)width-(border_space + this->getEntityWidth() / 2 * this->getXScaleValue() + xOffset * (this->getEntityWidth() * this->getXScaleValue() + 5.0f)));
-	xOffset++;
+	this->setXShiftValue((float)width-(border_space + this->getEntityWidth() / 2 * this->getXScaleValue() + xOffset_heart_build * (this->getEntityWidth() * this->getXScaleValue() + 5.0f)));
+	xOffset_heart_build++;
 }
 
-vector<vec3> Hearth::createHearth(float rx, float ry, int precision)
+vector<vec3> Heart::createHearth(float rx, float ry, int precision)
 {
 	float step = 2 * PI / precision;
 	vector<vec3> vertices;
@@ -227,13 +227,13 @@ vector<vec3> Hearth::createHearth(float rx, float ry, int precision)
 	return vertices;
 }
 
-void Hearth::setAlive(bool value)
+void Heart::setAlive(bool value)
 {
 	//TODO check collision
 	alive = value;
 }
 
-bool Hearth::isAlive()
+bool Heart::isAlive()
 {
 	return false;
 }
@@ -251,10 +251,18 @@ Player::Player() : Entity(Type::PLAYER)
 }
 void Player::build()
 {
-	vec4 cannon_wheel = vec4(0.58f, 0.39f, 0.03f, 1.0f);
-	vec4 white_center = vec4(0.7f, 0.7f, 0.7f, 1.0f);
-	wheel->createPolygonalShape(createCircle(1.5f, 1.5f, 100), cannon_wheel, white_center);
-	cannon->createPolygonalShape(createRectangle(1.5f, 1.5f), cannon_wheel, white_center);
+	//wheel
+	vec4 cannon_wheel_color = vec4(0.58f, 0.39f, 0.03f, 1.0f);
+	vec4 white_center_color = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+	wheel->createPolygonalShape(createCircle(1.5f, 1.5f, 100), cannon_wheel_color, white_center_color);
+	wheel->setXShiftValue(width / 2);
+	wheel->setYShiftValue(height / 2);
+	//cannon
+	vec4 cannon_color = vec4(0.5f, 0.5f, 0.5f, 1.0f); // Grigio medio per il cannone
+	cannon->createPolygonalShape(createRectangle(1.5f, 3.0f), cannon_color, cannon_color);
+	cannon->setXShiftValue(width / 2);
+	cannon->setYShiftValue(height / 2);
+	//set player in center for movement correctly
 	this->setXShiftValue(width / 2);
 	this->setYShiftValue(height / 2);
 }
@@ -302,11 +310,14 @@ vector<vec3> Player::createCircle(float rx, float ry, int precision)
 vector<vec3> Player::createRectangle(float width, float height)
 {
 	vector<vec3> vertices;
-	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
-	vertices.push_back(vec3(width / 2, height / 2, 0.0f));
-	vertices.push_back(vec3(-width / 2, height / 2, 0.0f));
-	vertices.push_back(vec3(-width / 2, -height / 2, 0.0f));
-	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
+	float halfWidth = width / 2.0f; // Calcolo della metà della larghezza
+
+	// Creazione del rettangolo centrato rispetto alla larghezza
+	vertices.push_back(vec3(-halfWidth, 0.0f, 0.0f)); // Angolo in basso a sinistra
+	vertices.push_back(vec3(halfWidth, 0.0f, 0.0f)); // Angolo in basso a destra
+	vertices.push_back(vec3(halfWidth, height, 0.0f)); // Angolo in alto a destra
+	vertices.push_back(vec3(-halfWidth, height, 0.0f)); // Angolo in alto a sinistra
+	vertices.push_back(vec3(-halfWidth, 0.0f, 0.0f)); // Ritorno al punto di partenza
 	return vertices;
 }
 #pragma endregion

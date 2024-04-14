@@ -66,7 +66,7 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 	//heart
 	vector<Entity*>* lives = new vector<Entity*>();
 	for (int i = 0; i < 3; i++) {
-		Hearth* hearth = new Hearth();
+		Heart* hearth = new Heart();
 		hearth->build(0.04f);
 		lives->push_back(hearth);
 	}
@@ -83,6 +83,11 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 
 	for (vector<Entity*>* container : *scene) {
 		for (Entity* entity : *container) {
+			if (entity->getType() == Type::PLAYER) {
+				Player* player = dynamic_cast<Player*>(entity);
+				player->getCannon()->initVAO();
+				player->getWheel()->initVAO();
+			}
 			entity->initVAO();
 		}
 	}

@@ -89,14 +89,14 @@ public:
 	Type getType();
 };
 
-class Hearth :public Entity {
+class Heart :public Entity {
 
 	private:
 		bool alive;
 		vector<vec3> createHearth(float rx, float ry, int precision);
 
 	public:
-		Hearth();
+		Heart();
 		void build(float size);
 		void setAlive(bool value);
 		bool isAlive();

@@ -1,15 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "Shader.h"
 #include "Lib.h"
-#include "VAO_Handler.h"
-//#include "Gestione_Gioco.h"
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include "Text_Handler.h"
 #include <ft2build.h>
-#include "Entity.h"
 #include FT_FREETYPE_H
 
 unsigned int VAO_Text, VBO_Text;
@@ -89,17 +85,12 @@ int main(int argc, char* argv[])
 
 	glutInitContextVersion(4, 0);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
-
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
 	glutInitWindowSize(width, height);
 	glutInitWindowPosition(50, 50);
 	glutCreateWindow("Cannon Clash");
 	glutDisplayFunc(drawScene);
-	/*glutKeyboardFunc(keyboardFunc);
-	glutKeyboardUpFunc(keyboardReleasedEvent);
-	glutTimerFunc(250, update_Barca, 0); //gestione evento oziosit : viene richiamata la funzione updateScale ogni 250 millisecondi che aggiorna i parametri di scalatura e forza il ridisegno
-	;*/
 
 	glutTimerFunc(32, updateScale, 0);
 	glewExperimental = GL_TRUE;
@@ -107,12 +98,12 @@ int main(int argc, char* argv[])
 
 	Shader::INIT_SHADER();
 	INIT_VAO(&piano, &scene);
-	//Init VAO per la gestione del disegno
-
 	INIT_VAO_Text();
 	Init_Freetype();
 
-	//Per gestire i colori con trasparenza: mescola i colori di geometrie che si sovrappongono
+	glutPassiveMotionFunc(mouseMovement);
+
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glutMainLoop();
