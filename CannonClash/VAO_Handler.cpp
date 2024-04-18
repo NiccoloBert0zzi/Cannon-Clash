@@ -83,6 +83,7 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 
 	for (vector<Entity*>* container : *scene) {
 		for (Entity* entity : *container) {
+			//TODO inserire cuore dentro e fare for del player per cuori e proiettili
 			if (entity->getType() == Type::PLAYER) {
 				Player* player = dynamic_cast<Player*>(entity);
 				player->getCannon()->initVAO();

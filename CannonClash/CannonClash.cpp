@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 	Init_Freetype();
 
 	glutPassiveMotionFunc(mouseMovement);
-
+	glutKeyboardFunc(keyboardClicked);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

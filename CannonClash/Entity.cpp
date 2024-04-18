@@ -6,10 +6,23 @@ using namespace glm;
 
 
 #define DEFAULT_SIZE 25.0f
-#define DEFAULT_PROJECTILE_SPEED 10.0f
+#define DEFAULT_BULLET_SPEED 10.0f
 #define P_VAL 100
 #define PI 3.14159265358979323846
 static int xOffset_heart_build = 0;
+
+Entity* getEntityByType(Type type)
+{
+	for (vector<Entity*>* container : scene) {
+		for (Entity* entity : *container) {
+			if (entity->getType() == type) {
+				return entity;
+			}
+		}
+	}
+	return NULL;
+}
+
 #pragma region Entity
 
 Entity::Entity(Type t)
@@ -21,6 +34,7 @@ Entity::Entity(Type t)
 	yScaleValue = DEFAULT_SIZE;
 	rotationValue = 0.0f;
 	type = t;
+	alive = true;
 }
 
 void Entity::createPolygonalShape(vector<vec3> polygonVertices, vec4 color1, vec4 color2)
@@ -196,12 +210,21 @@ Type Entity::getType()
 {
 	return type;
 }
+void Entity::setAlive(bool value)
+{
+	//TODO check collision
+	alive = value;
+}
 
+bool Entity::isAlive()
+{
+	return false;
+}
 #pragma endregion
 
 #pragma region Heart
 Heart::Heart() : Entity(Type::HEART) {
-	alive = true;
+	setAlive(true);
 }
 
 void Heart::build(float size)
@@ -226,28 +249,15 @@ vector<vec3> Heart::createHearth(float rx, float ry, int precision)
 	}
 	return vertices;
 }
-
-void Heart::setAlive(bool value)
-{
-	//TODO check collision
-	alive = value;
-}
-
-bool Heart::isAlive()
-{
-	return false;
-}
 #pragma endregion
 
 #pragma region Player
 Player::Player() : Entity(Type::PLAYER)
 {
-
 	score = 0;
-	alive = true;
 	cannon = new Entity(Type::CANNON);
 	wheel = new Entity(Type::WHEEL);
-
+	setAlive(true);
 }
 void Player::build()
 {
@@ -272,19 +282,19 @@ void Player::setScore(int value)
 	score = value;
 }
 
-void Player::setAlive(bool value)
-{
-	alive = value;
-}
-
 int Player::getScore()
 {
 	return score;
 }
 
-bool Player::isAlive()
+void Player::shoot()
 {
-	return alive;
+	//TODO create bullet chiamato ad ogni space click
+}
+
+vector<Bullet*>* Player::getBullets()
+{
+	return bullets;
 }
 
 Entity* Player::getCannon()
@@ -320,6 +330,15 @@ vector<vec3> Player::createRectangle(float width, float height)
 	vertices.push_back(vec3(-halfWidth, 0.0f, 0.0f)); // Ritorno al punto di partenza
 	return vertices;
 }
+#pragma endregion
+
+#pragma region Bullet
+
+void Bullet::build(float size)
+{
+
+}
+
 #pragma endregion
 
 

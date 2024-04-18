@@ -132,16 +132,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Keyboard_Handler.h" />
     <ClInclude Include="Mouse_Handler.h" />
     <ClInclude Include="Text_Handler.h" />
     <ClInclude Include="VAO_Handler.h" />
     <ClInclude Include="Lib.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="Strutture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CannonClash.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Keyboard_Handler.cpp" />
     <ClCompile Include="MouseHandler.cpp" />
     <ClCompile Include="Text_Handler.cpp" />
     <ClCompile Include="VAO_Handler.cpp" />

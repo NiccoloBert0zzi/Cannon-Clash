@@ -21,9 +21,6 @@
     <ClInclude Include="Lib.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="Strutture.h">
-      <Filter>File di intestazione</Filter>
-    </ClInclude>
     <ClInclude Include="VAO_Handler.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
@@ -37,6 +34,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="Mouse_Handler.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard_Handler.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
@@ -57,6 +57,9 @@
       <Filter>File di risorse</Filter>
     </ClCompile>
     <ClCompile Include="MouseHandler.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard_Handler.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
   </ItemGroup>

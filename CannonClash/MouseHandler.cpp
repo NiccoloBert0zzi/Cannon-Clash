@@ -4,7 +4,7 @@
 
 void mouseMovement(int x, int y)
 {
-	Entity* entity = getEntity(Type::PLAYER);
+	Entity* entity = getEntityByType(Type::PLAYER);
 	if (entity != NULL) {
 		Player* player = dynamic_cast<Player*>(entity);
 		float m = ((float)(height - y) - player->getYShiftValue()) / ((float)x - player->getXShiftValue());
@@ -23,16 +23,4 @@ void mouseMovement(int x, int y)
 		player->getCannon()->setYShiftValue(player->getYShiftValue() + yShift);
 		player->getCannon()->setRotationValue(-90.0f + angle);
 	}
-}
-
-Entity* getEntity(Type type)
-{
-	for (vector<Entity*>* container : scene) {
-		for (Entity* entity : *container) {
-			if (entity->getType() == type) {
-				return entity;
-			}
-		}
-	}
-	return NULL;
 }

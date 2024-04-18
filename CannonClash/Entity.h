@@ -23,7 +23,8 @@ enum Type
 	HEART,
 	PLAYER,
 	CANNON,
-	WHEEL
+	WHEEL,
+	BULLET
 };
 
 static vector<vec3> createRectangle(float width, float height) {
@@ -53,6 +54,7 @@ private:
 	float rotationValue;		// Valore di rotazione
 	bool backgroundChecker;	// true se fa parte dello sfondo, false altrimenti
 	Type type;
+	bool alive;
 
 public:
 	Entity(Type t);
@@ -87,28 +89,35 @@ public:
 	void changePane();
 	void build();
 	Type getType();
+	void setAlive(bool value);
+	bool isAlive();
 };
 
 class Heart :public Entity {
 
 	private:
-		bool alive;
 		vector<vec3> createHearth(float rx, float ry, int precision);
 
 	public:
 		Heart();
 		void build(float size);
-		void setAlive(bool value);
-		bool isAlive();
+};
+
+class Bullet : public Entity {
+
+public:
+	void build(float size);
+
 };
 
 class Player :public Entity {
 
 	private:
 		int score;
-		bool alive;
 		Entity* cannon;
 		Entity* wheel;
+
+		vector<Bullet*>* bullets;
 		vector<vec3> createCircle(float rx, float ry, int precision);
 		vector<vec3> createRectangle(float width, float height);
 
@@ -116,9 +125,11 @@ class Player :public Entity {
 		Player();
 		void build();
 		void setScore(int value);
-		void setAlive(bool value);
 		int getScore();
-		bool isAlive();
+		void shoot();
+		vector<Bullet*>* getBullets();
 		Entity* getCannon();
 		Entity* getWheel();
 };
+
+static Entity* getEntityByType(Type type);

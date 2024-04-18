@@ -6,4 +6,3 @@ extern int height;
 extern vector<vector<Entity*>*> scene;
 
 void mouseMovement(int x, int y);
-Entity* getEntity(Type type);

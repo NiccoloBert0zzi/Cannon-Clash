@@ -1,8 +1,7 @@
-#include "Strutture.h"
 #include <iostream>
 #include <string>
 #include <ft2build.h>
-#include "Lib.h"
+#include "Text_Handler.h"
 #include FT_FREETYPE_H
 
 std::map<GLchar, Character> Characters;
