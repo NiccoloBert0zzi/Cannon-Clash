@@ -2,7 +2,7 @@
 
 void keyboardClicked(unsigned char key, int x, int y)
 {
-	Entity* entity = getEntityByType(Type::PLAYER);
+	Entity* entity = Entity::getEntityByType(Type::PLAYER);
 	if (entity != NULL) {
 		Player* player = dynamic_cast<Player*>(entity);
 		switch (key)

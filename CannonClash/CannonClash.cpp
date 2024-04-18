@@ -55,6 +55,12 @@ void drawScene(void)
 				Player* player = dynamic_cast<Player*>(entity);
 				drawEntity(player->getCannon());
 				drawEntity(player->getWheel());
+				for (Bullet* bullet : *player->getBullets()) {
+					drawEntity(bullet);
+				}
+				for (Heart* heart : *player->getHearts()) {
+					drawEntity(heart);
+				}
 			}
 			drawEntity(entity);
 		}
@@ -68,8 +74,8 @@ void updateScale(int value) {
 		for (Entity* entity : *container) {
 			if (entity->getType() == Type::PLAYER) {
 				Player* player = dynamic_cast<Player*>(entity);
-				player->getCannon()->updateVAO();
-				player->getWheel()->updateVAO();
+				player->updatePlayerPartsVAO();
+				player->updateHearts();
 			}
 			entity->updateVAO();
 		}

@@ -91,6 +91,7 @@ public:
 	Type getType();
 	void setAlive(bool value);
 	bool isAlive();
+	static Entity* getEntityByType(Type type);
 };
 
 class Heart :public Entity {
@@ -118,6 +119,7 @@ class Player :public Entity {
 		Entity* wheel;
 
 		vector<Bullet*>* bullets;
+		vector<Heart*>* hearts;
 		vector<vec3> createCircle(float rx, float ry, int precision);
 		vector<vec3> createRectangle(float width, float height);
 
@@ -126,10 +128,17 @@ class Player :public Entity {
 		void build();
 		void setScore(int value);
 		int getScore();
+		//bulltes
 		void shoot();
 		vector<Bullet*>* getBullets();
+		//hearts
+		vector<Heart*>* getHearts();
+		void initHearts();
+		void updateHearts();
+		//player parts
 		Entity* getCannon();
 		Entity* getWheel();
+		void updatePlayerPartsVAO();
+		void initPlayerPartsVAO();
 };
 
-static Entity* getEntityByType(Type type);

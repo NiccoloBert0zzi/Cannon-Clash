@@ -11,18 +11,6 @@ using namespace glm;
 #define PI 3.14159265358979323846
 static int xOffset_heart_build = 0;
 
-Entity* getEntityByType(Type type)
-{
-	for (vector<Entity*>* container : scene) {
-		for (Entity* entity : *container) {
-			if (entity->getType() == type) {
-				return entity;
-			}
-		}
-	}
-	return NULL;
-}
-
 #pragma region Entity
 
 Entity::Entity(Type t)
@@ -36,6 +24,19 @@ Entity::Entity(Type t)
 	type = t;
 	alive = true;
 }
+
+Entity* Entity::getEntityByType(Type type)
+{
+	for (vector<Entity*>* container : scene) {
+		for (Entity* entity : *container) {
+			if (entity->getType() == type) {
+				return entity;
+			}
+		}
+	}
+	return NULL;
+}
+
 
 void Entity::createPolygonalShape(vector<vec3> polygonVertices, vec4 color1, vec4 color2)
 {
@@ -257,10 +258,19 @@ Player::Player() : Entity(Type::PLAYER)
 	score = 0;
 	cannon = new Entity(Type::CANNON);
 	wheel = new Entity(Type::WHEEL);
+	bullets = new vector<Bullet*>();
+	hearts = new vector<Heart*>();
 	setAlive(true);
 }
 void Player::build()
 {
+	//heart
+	for (int i = 0; i < 3; i++) {
+		Heart* heart = new Heart();
+		heart->build(0.04f);
+		hearts->push_back(heart);
+	}
+
 	//wheel
 	vec4 cannon_wheel_color = vec4(0.58f, 0.39f, 0.03f, 1.0f);
 	vec4 white_center_color = vec4(0.7f, 0.7f, 0.7f, 1.0f);
@@ -287,26 +297,6 @@ int Player::getScore()
 	return score;
 }
 
-void Player::shoot()
-{
-	//TODO create bullet chiamato ad ogni space click
-}
-
-vector<Bullet*>* Player::getBullets()
-{
-	return bullets;
-}
-
-Entity* Player::getCannon()
-{
-	return cannon;
-}
-
-Entity* Player::getWheel()
-{
-	return wheel;
-}
-
 vector<vec3> Player::createCircle(float rx, float ry, int precision)
 {
 	float step = 2 * PI / precision;
@@ -329,6 +319,58 @@ vector<vec3> Player::createRectangle(float width, float height)
 	vertices.push_back(vec3(-halfWidth, height, 0.0f)); // Angolo in alto a sinistra
 	vertices.push_back(vec3(-halfWidth, 0.0f, 0.0f)); // Ritorno al punto di partenza
 	return vertices;
+}
+
+//bullets
+void Player::shoot()
+{
+	//TODO create bullet chiamato ad ogni space click
+}
+
+vector<Bullet*>* Player::getBullets()
+{
+	return bullets;
+}
+//hearts
+vector<Heart*>* Player::getHearts()
+{
+	return hearts;
+}
+
+void Player::initHearts()
+{
+	for (Heart* heart : *hearts) {
+		heart->initVAO();
+	}
+}
+
+void Player::updateHearts()
+{
+	for (Heart* heart : *hearts) {
+		heart->updateVAO();
+	}
+}
+//player parts
+Entity* Player::getCannon()
+{
+	return cannon;
+}
+
+Entity* Player::getWheel()
+{
+	return wheel;
+}
+
+void Player::updatePlayerPartsVAO()
+{
+	cannon->updateVAO();
+	wheel->updateVAO();
+}
+
+void Player::initPlayerPartsVAO()
+{
+	cannon->initVAO();
+	wheel->initVAO();
 }
 #pragma endregion
 

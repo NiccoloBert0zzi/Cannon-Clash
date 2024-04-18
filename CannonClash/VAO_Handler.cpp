@@ -63,14 +63,6 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 	backgroundPane->changePane();
 	piano->push_back(backgroundPane);
 
-	//heart
-	vector<Entity*>* lives = new vector<Entity*>();
-	for (int i = 0; i < 3; i++) {
-		Heart* hearth = new Heart();
-		hearth->build(0.04f);
-		lives->push_back(hearth);
-	}
-
 	//player
 	vector<Entity*>* players = new vector<Entity*>();
 	Player* player = new Player();
@@ -78,7 +70,6 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 	player->build();
 
 	scene->push_back(piano);
-	scene->push_back(lives);
 	scene->push_back(players);
 
 	for (vector<Entity*>* container : *scene) {
@@ -86,8 +77,8 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 			//TODO inserire cuore dentro e fare for del player per cuori e proiettili
 			if (entity->getType() == Type::PLAYER) {
 				Player* player = dynamic_cast<Player*>(entity);
-				player->getCannon()->initVAO();
-				player->getWheel()->initVAO();
+				player->initPlayerPartsVAO();
+				player->initHearts();
 			}
 			entity->initVAO();
 		}
