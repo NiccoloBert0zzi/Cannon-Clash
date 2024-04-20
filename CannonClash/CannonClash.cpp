@@ -56,6 +56,7 @@ void drawScene(void)
 				drawEntity(player->getCannon());
 				drawEntity(player->getWheel());
 				for (Bullet* bullet : *player->getBullets()) {
+					bullet->updatePosition();
 					drawEntity(bullet);
 				}
 				for (Heart* heart : *player->getHearts()) {
@@ -76,6 +77,7 @@ void updateScale(int value) {
 				Player* player = dynamic_cast<Player*>(entity);
 				player->updatePlayerPartsVAO();
 				player->updateHearts();
+				player->updateBullets();
 			}
 			entity->updateVAO();
 		}

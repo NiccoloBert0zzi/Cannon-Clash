@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "VAO_Handler.h"
+#include "Geometry.h"
 #include "Lib.h"
 #include <vector>
 using namespace glm;
@@ -8,8 +9,6 @@ using namespace glm;
 #define DEFAULT_SIZE 25.0f
 #define DEFAULT_BULLET_SPEED 10.0f
 #define P_VAL 100
-#define PI 3.14159265358979323846
-static int xOffset_heart_build = 0;
 
 #pragma region Entity
 
@@ -23,6 +22,11 @@ Entity::Entity(Type t)
 	rotationValue = 0.0f;
 	type = t;
 	alive = true;
+	model = mat4(1.0f);
+	VAO = 0;
+	VBO_G = 0;
+	VBO_C = 0;
+	hitbox = { vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f) };
 }
 
 Entity* Entity::getEntityByType(Type type)
@@ -238,18 +242,35 @@ void Heart::build(float size)
 	xOffset_heart_build++;
 }
 
-vector<vec3> Heart::createHearth(float rx, float ry, int precision)
+#pragma endregion
+
+#pragma region Bullet
+
+Bullet::Bullet() : Entity(Type::BULLET)
 {
-	float step = 2 * PI / precision;
-	vector<vec3> vertices;
-	for (int i = 0; i <= precision + 2; i++) {
-		float theta_i = (float)i * step;
-		float x = rx * 16 * pow(sin(theta_i), 3);
-		float y = ry * (13 * cos(theta_i) - 5 * cos(2 * theta_i) - 2 * cos(3 * theta_i) - cos(4 * theta_i));
-		vertices.push_back(vec3(x, y, 0.0f));
-	}
-	return vertices;
+	setAlive(true);
 }
+
+void Bullet::build(float x, float y, float angle)
+{
+	this->createPolygonalShape(createHearth(0.04f, 0.04f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	float m = tan(radians(angle));
+	this->setXShiftValue(x);
+	this->setYShiftValue(y);
+	xShift = DEFAULT_BULLET_SPEED * cos(radians(90.0f + angle));
+	yShift = m * xShift;
+	this->setXScaleValue((float)DEFAULT_SIZE * 2 / 3);
+	this->setYScaleValue((float)DEFAULT_SIZE * 2 / 3);
+	this->setRotationValue(angle);
+}
+
+void Bullet::updatePosition()
+{
+	this->setXShiftValue(this->getXShiftValue() + xShift);
+	this->setYShiftValue(this->getYShiftValue() + yShift);
+}
+
 #pragma endregion
 
 #pragma region Player
@@ -297,90 +318,71 @@ int Player::getScore()
 	return score;
 }
 
-vector<vec3> Player::createCircle(float rx, float ry, int precision)
-{
-	float step = 2 * PI / precision;
-	vector<vec3> vertices;
-	for (int i = 0; i <= precision + 2; i++) {
-		float theta_i = (float)i * step;
-		vertices.push_back(vec3(rx * cos(theta_i), ry * sin(theta_i), 0.0f));
-	}
-	return vertices;
-}
-vector<vec3> Player::createRectangle(float width, float height)
-{
-	vector<vec3> vertices;
-	float halfWidth = width / 2.0f; // Calcolo della metà della larghezza
-
-	// Creazione del rettangolo centrato rispetto alla larghezza
-	vertices.push_back(vec3(-halfWidth, 0.0f, 0.0f)); // Angolo in basso a sinistra
-	vertices.push_back(vec3(halfWidth, 0.0f, 0.0f)); // Angolo in basso a destra
-	vertices.push_back(vec3(halfWidth, height, 0.0f)); // Angolo in alto a destra
-	vertices.push_back(vec3(-halfWidth, height, 0.0f)); // Angolo in alto a sinistra
-	vertices.push_back(vec3(-halfWidth, 0.0f, 0.0f)); // Ritorno al punto di partenza
-	return vertices;
-}
-
 //bullets
 void Player::shoot()
 {
-	//TODO create bullet chiamato ad ogni space click
+	float x = this->getXShiftValue() + 2 * (cannon->getXShiftValue() - this->getXShiftValue());
+	float y = this->getYShiftValue() + 2 * (cannon->getYShiftValue() - this->getYShiftValue());
+	Bullet* bullet = new Bullet();
+	bullet->build(x, y, cannon->getRotationValue());
+	
+	bullet->initVAO();
+	bullets->push_back(bullet);
 }
-
 vector<Bullet*>* Player::getBullets()
 {
 	return bullets;
 }
+void Player::initBullets()
+{
+	for (Bullet* bullet : *bullets) {
+		bullet->initVAO();
+	}
+}
+void Player::updateBullets()
+{
+	for (Bullet* bullet : *bullets) {
+		bullet->updateVAO();
+	}
+}
+
 //hearts
 vector<Heart*>* Player::getHearts()
 {
 	return hearts;
 }
-
 void Player::initHearts()
 {
 	for (Heart* heart : *hearts) {
 		heart->initVAO();
 	}
 }
-
 void Player::updateHearts()
 {
 	for (Heart* heart : *hearts) {
 		heart->updateVAO();
 	}
 }
+
 //player parts
 Entity* Player::getCannon()
 {
 	return cannon;
 }
-
 Entity* Player::getWheel()
 {
 	return wheel;
 }
-
 void Player::updatePlayerPartsVAO()
 {
 	cannon->updateVAO();
 	wheel->updateVAO();
 }
-
 void Player::initPlayerPartsVAO()
 {
 	cannon->initVAO();
 	wheel->initVAO();
 }
-#pragma endregion
-
-#pragma region Bullet
-
-void Bullet::build(float size)
-{
-
-}
-
 #pragma endregion
 
 

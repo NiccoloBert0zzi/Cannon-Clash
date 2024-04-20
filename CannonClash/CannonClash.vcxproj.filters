@@ -39,6 +39,12 @@
     <ClInclude Include="Keyboard_Handler.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CannonClash.cpp">
@@ -60,6 +66,9 @@
       <Filter>File di risorse</Filter>
     </ClCompile>
     <ClCompile Include="Keyboard_Handler.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
   </ItemGroup>

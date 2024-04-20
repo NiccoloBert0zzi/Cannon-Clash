@@ -27,16 +27,6 @@ enum Type
 	BULLET
 };
 
-static vector<vec3> createRectangle(float width, float height) {
-	vector<vec3> vertices;
-	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
-	vertices.push_back(vec3(width / 2, height / 2, 0.0f));
-	vertices.push_back(vec3(-width / 2, height / 2, 0.0f));
-	vertices.push_back(vec3(-width / 2, -height / 2, 0.0f));
-	vertices.push_back(vec3(width / 2, -height / 2, 0.0f));
-	return vertices;
-}
-
 class Entity {
 
 private:
@@ -96,9 +86,6 @@ public:
 
 class Heart :public Entity {
 
-	private:
-		vector<vec3> createHearth(float rx, float ry, int precision);
-
 	public:
 		Heart();
 		void build(float size);
@@ -106,8 +93,14 @@ class Heart :public Entity {
 
 class Bullet : public Entity {
 
+private:
+	float xShift;
+	float yShift;
+
 public:
-	void build(float size);
+	Bullet();
+	void build(float x, float y, float angle);
+	void updatePosition();
 
 };
 
@@ -120,8 +113,6 @@ class Player :public Entity {
 
 		vector<Bullet*>* bullets;
 		vector<Heart*>* hearts;
-		vector<vec3> createCircle(float rx, float ry, int precision);
-		vector<vec3> createRectangle(float width, float height);
 
 	public:
 		Player();
@@ -131,6 +122,8 @@ class Player :public Entity {
 		//bulltes
 		void shoot();
 		vector<Bullet*>* getBullets();
+		void initBullets();
+		void updateBullets();
 		//hearts
 		vector<Heart*>* getHearts();
 		void initHearts();
