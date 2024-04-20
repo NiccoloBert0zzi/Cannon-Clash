@@ -183,13 +183,25 @@ float Entity::getEntityHeight()
 	return hitbox.cornerTop.y - hitbox.cornerBot.y;
 }
 
-Hitbox Entity::getHitboxWorldCoordinates()
+void Entity::updateHitbox(float newX, float newY)
 {
-	float xBottom = (float)width / 2 + hitbox.cornerBot.x * xScaleValue + xShiftValue;
-	float yBottom = (float)height / 2 + hitbox.cornerBot.y * yScaleValue + yShiftValue;
-	float xTop = (float)width / 2 + hitbox.cornerTop.x * xScaleValue + xShiftValue;
-	float yTop = (float)height / 2 + hitbox.cornerTop.y * yScaleValue + yShiftValue;
-	return { vec3(xBottom, yBottom, 0.0f), vec3(xTop, yTop, 0.0f) };
+	// Aggiorna l'hitbox in base alla nuova posizione
+	float xMin = newX;
+	float yMin = newY;
+	float xMax = newX;
+	float yMax = newY;
+	for (vec3 vertex : vertices) {
+		if (vertex.x < xMin)
+			xMin = vertex.x;
+		else if (vertex.x > xMax)
+			xMax = vertex.x;
+		if (vertex.y < yMin)
+			yMin = vertex.y;
+		else if (vertex.y > yMax)
+			yMax = vertex.y;
+	}
+	hitbox.cornerBot = vec3(xMin, yMin, 0.0f);
+	hitbox.cornerTop = vec3(xMax, yMax, 0.0f);
 }
 
 bool Entity::isBackground()
@@ -253,22 +265,34 @@ Bullet::Bullet() : Entity(Type::BULLET)
 
 void Bullet::build(float x, float y, float angle)
 {
-	this->createPolygonalShape(createHearth(0.04f, 0.04f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 	float m = tan(radians(angle));
 	this->setXShiftValue(x);
 	this->setYShiftValue(y);
-	xShift = DEFAULT_BULLET_SPEED * cos(radians(90.0f + angle));
-	yShift = DEFAULT_BULLET_SPEED * sin(radians(90.0f + angle));
+	xBulletMovement = DEFAULT_BULLET_SPEED * cos(radians(90.0f + angle));
+	yBulletMovement = DEFAULT_BULLET_SPEED * sin(radians(90.0f + angle));
 	this->setXScaleValue((float)DEFAULT_SIZE * 2 / 3);
 	this->setYScaleValue((float)DEFAULT_SIZE * 2 / 3);
 	this->setRotationValue(angle);
+	this->createPolygonalShape(createHearth(0.04f, 0.04f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
-void Bullet::updatePosition()
+bool Bullet::updatePosition()
 {
-	this->setXShiftValue(this->getXShiftValue() + xShift);
-	this->setYShiftValue(this->getYShiftValue() + yShift);
+	float newX = this->getXShiftValue() + xBulletMovement;
+	float newY = this->getYShiftValue() + yBulletMovement;
+
+	// Controlla che il proiettile non esca dallo schermo
+	if (newX >= 0 && newX <= width && newY >= 0 && newY <= height) {
+		// Il proiettile è all'interno dello schermo, aggiorna la posizione
+		this->setXShiftValue(newX);
+		this->setYShiftValue(newY);
+
+		// Aggiorna le hitbox del proiettile
+		updateHitbox(newX, newY);
+		return true;
+	}
+	return false;
 }
 
 #pragma endregion
@@ -341,10 +365,37 @@ void Player::initBullets()
 }
 void Player::updateBullets()
 {
-	for (Bullet* bullet : *bullets) {
-		bullet->updateVAO();
+	for (size_t i = 0; i < bullets->size(); ++i) {
+		Bullet* bullet = (*bullets)[i];
+		if (!bullet->updatePosition()) {
+			removeBullet(i);
+		}
+		else {
+			bullet->updateVAO();
+		}
 	}
 }
+
+void Player::removeBullet(int index)
+{
+	// Controlla che l'indice sia valido
+	if (index < 0 || index >= bullets->size()) {
+		// Indice non valido, esci dalla funzione
+		return;
+	}
+
+	// Dealloca il proiettile all'indice specificato
+	delete (*bullets)[index];
+
+	// Sposta gli elementi successivi nel vettore
+	for (size_t i = index; i < bullets->size() - 1; ++i) {
+		(*bullets)[i] = (*bullets)[i + 1];
+	}
+
+	// Rimuovi l'ultimo elemento dal vettore
+	bullets->pop_back();
+}
+
 
 //hearts
 vector<Heart*>* Player::getHearts()

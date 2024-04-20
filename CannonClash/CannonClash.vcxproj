@@ -135,7 +135,6 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Keyboard_Handler.h" />
     <ClInclude Include="Mouse_Handler.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Text_Handler.h" />
     <ClInclude Include="VAO_Handler.h" />
     <ClInclude Include="Lib.h" />

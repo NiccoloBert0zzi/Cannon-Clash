@@ -74,7 +74,7 @@ public:
 	vec3 getMidPoint();
 	float getEntityWidth();
 	float getEntityHeight();
-	Hitbox getHitboxWorldCoordinates();
+	void updateHitbox(float newX, float newY);
 	bool isBackground();
 	void changePane();
 	void build();
@@ -94,13 +94,13 @@ class Heart :public Entity {
 class Bullet : public Entity {
 
 private:
-	float xShift;
-	float yShift;
+	float xBulletMovement;
+	float yBulletMovement;
 
 public:
 	Bullet();
 	void build(float x, float y, float angle);
-	void updatePosition();
+	bool updatePosition();
 
 };
 
@@ -124,6 +124,7 @@ class Player :public Entity {
 		vector<Bullet*>* getBullets();
 		void initBullets();
 		void updateBullets();
+		void removeBullet(int index);
 		//hearts
 		vector<Heart*>* getHearts();
 		void initHearts();

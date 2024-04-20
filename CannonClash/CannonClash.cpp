@@ -54,7 +54,6 @@ void drawScene(void)
 			if (entity->getType() == Type::PLAYER) {
 				Player* player = dynamic_cast<Player*>(entity);
 				for (Bullet* bullet : *player->getBullets()) {
-					bullet->updatePosition();
 					drawEntity(bullet);
 				}
 				for (Heart* heart : *player->getHearts()) {
