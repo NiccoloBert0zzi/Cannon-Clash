@@ -53,8 +53,6 @@ void drawScene(void)
 		{
 			if (entity->getType() == Type::PLAYER) {
 				Player* player = dynamic_cast<Player*>(entity);
-				drawEntity(player->getCannon());
-				drawEntity(player->getWheel());
 				for (Bullet* bullet : *player->getBullets()) {
 					bullet->updatePosition();
 					drawEntity(bullet);
@@ -62,6 +60,8 @@ void drawScene(void)
 				for (Heart* heart : *player->getHearts()) {
 					drawEntity(heart);
 				}
+				drawEntity(player->getWheel());
+				drawEntity(player->getCannon());
 			}
 			drawEntity(entity);
 		}
@@ -75,9 +75,9 @@ void updateScale(int value) {
 		for (Entity* entity : *container) {
 			if (entity->getType() == Type::PLAYER) {
 				Player* player = dynamic_cast<Player*>(entity);
-				player->updatePlayerPartsVAO();
 				player->updateHearts();
 				player->updateBullets();
+				player->updatePlayerPartsVAO();
 			}
 			entity->updateVAO();
 		}
@@ -110,8 +110,8 @@ int main(int argc, char* argv[])
 	Init_Freetype();
 
 	glutPassiveMotionFunc(mouseMovement);
-	glutKeyboardFunc(keyboardClicked);
-
+	glutKeyboardFunc(keyboardPressed);
+	glutKeyboardUpFunc(keyboardReleased);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glutMainLoop();

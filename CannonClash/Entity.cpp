@@ -259,7 +259,7 @@ void Bullet::build(float x, float y, float angle)
 	this->setXShiftValue(x);
 	this->setYShiftValue(y);
 	xShift = DEFAULT_BULLET_SPEED * cos(radians(90.0f + angle));
-	yShift = m * xShift;
+	yShift = DEFAULT_BULLET_SPEED * sin(radians(90.0f + angle));
 	this->setXScaleValue((float)DEFAULT_SIZE * 2 / 3);
 	this->setYScaleValue((float)DEFAULT_SIZE * 2 / 3);
 	this->setRotationValue(angle);
@@ -321,8 +321,8 @@ int Player::getScore()
 //bullets
 void Player::shoot()
 {
-	float x = this->getXShiftValue() + 2 * (cannon->getXShiftValue() - this->getXShiftValue());
-	float y = this->getYShiftValue() + 2 * (cannon->getYShiftValue() - this->getYShiftValue());
+	float x = cannon->getXShiftValue();
+	float y = cannon->getYShiftValue();
 	Bullet* bullet = new Bullet();
 	bullet->build(x, y, cannon->getRotationValue());
 	
@@ -375,13 +375,13 @@ Entity* Player::getWheel()
 }
 void Player::updatePlayerPartsVAO()
 {
-	cannon->updateVAO();
 	wheel->updateVAO();
+	cannon->updateVAO();
 }
 void Player::initPlayerPartsVAO()
 {
-	cannon->initVAO();
 	wheel->initVAO();
+	cannon->initVAO();
 }
 #pragma endregion
 

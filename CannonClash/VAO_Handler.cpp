@@ -76,9 +76,9 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 		for (Entity* entity : *container) {
 			if (entity->getType() == Type::PLAYER) {
 				Player* player = dynamic_cast<Player*>(entity);
-				player->initPlayerPartsVAO();
 				player->initHearts();
 				player->initBullets();
+				player->initPlayerPartsVAO();
 			}
 			entity->initVAO();
 		}
