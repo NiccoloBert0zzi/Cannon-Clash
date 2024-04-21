@@ -16,3 +16,4 @@ static int xOffset_heart_build = 0;
  vector<vec3> createPlayerCockpit(float width, float height);
  vector<vec3> createHearth(float rx, float ry, int precision);
  vector<vec3> createCircle(float rx, float ry, int precision);
+ vector<vec3> createCannonBall(float outerRadius, float innerRadius, int precision);

@@ -20,6 +20,7 @@ typedef struct {
 enum Type
 {
 	BACKGROUND,
+	ENEMY,
 	HEART,
 	PLAYER,
 	CANNON,
@@ -46,6 +47,7 @@ private:
 	Type type;
 	bool alive;
 
+
 public:
 	Entity(Type t);
 	virtual ~Entity() {} // Funzione virtuale di distruttore
@@ -71,10 +73,10 @@ public:
 	void setYScaleValue(float value);
 	void setRotationValue(float value);
 	Hitbox getHitbox();
+	void updateHitbox(float newX, float newY);
 	vec3 getMidPoint();
 	float getEntityWidth();
 	float getEntityHeight();
-	void updateHitbox(float newX, float newY);
 	bool isBackground();
 	void changePane();
 	void build();
@@ -136,3 +138,11 @@ class Player :public Entity {
 		void initPlayerPartsVAO();
 };
 
+class Enemy :public Entity {
+	private:
+
+public:
+	Enemy();
+	void build();
+	void updatePosition();
+};

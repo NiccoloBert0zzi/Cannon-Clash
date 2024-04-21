@@ -6,6 +6,7 @@
 #include <GL/freeglut.h>
 #include "Text_Handler.h"
 #include <ft2build.h>
+#include <ctime>
 #include FT_FREETYPE_H
 
 unsigned int VAO_Text, VBO_Text;
@@ -77,6 +78,9 @@ void updateScale(int value) {
 				player->updateHearts();
 				player->updateBullets();
 				player->updatePlayerPartsVAO();
+			} else if (entity->getType() == Type::ENEMY) {
+				Enemy* enemy = dynamic_cast<Enemy*>(entity);
+				enemy->updatePosition();
 			}
 			entity->updateVAO();
 		}
@@ -88,6 +92,7 @@ void updateScale(int value) {
 
 int main(int argc, char* argv[])
 {
+	srand(static_cast<unsigned int>(time(nullptr)));
 	glutInit(&argc, argv);
 
 	glutInitContextVersion(4, 0);

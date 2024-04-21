@@ -35,6 +35,29 @@ vector<vec3> createCircle(float rx, float ry, int precision)
 
 }
 
+vector<vec3> createCannonBall(float outerRadius, float innerRadius, int precision)
+{
+	float outerStep = 2 * PI / precision;
+	float innerStep = 2 * PI / precision; // Stessa precisione per entrambi i cerchi
+	vector<vec3> vertices;
+
+	// Cerchio interno (bianco)
+	for (int i = 0; i <= precision; i++) {
+		float theta_i = (float)i * innerStep;
+		vertices.push_back(vec3(innerRadius * cos(theta_i), innerRadius * sin(theta_i), 0.0f));
+	}
+
+	// Cerchio esterno (nero)
+	for (int i = 0; i <= precision; i++) {
+		float theta_i = (float)i * outerStep;
+		vertices.push_back(vec3(outerRadius * cos(theta_i), outerRadius * sin(theta_i), 0.0f));
+	}
+
+	return vertices;
+}
+
+
+
 vector<vec3> createPlayerCockpit(float width, float height)
 {
 	vector<vec3> vertices;

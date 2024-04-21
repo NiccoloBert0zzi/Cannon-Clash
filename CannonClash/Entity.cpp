@@ -10,6 +10,7 @@ using namespace glm;
 #define DEFAULT_BULLET_SPEED 10.0f
 #define P_VAL 100
 
+
 #pragma region Entity
 
 Entity::Entity(Type t)
@@ -251,6 +252,7 @@ void Heart::build(float size)
 	this->createPolygonalShape(createHearth(size, size, 100), red, red);
 	this->setYShiftValue((float)height - this->getEntityHeight() / 2 * this->getYScaleValue() - border_space);
 	this->setXShiftValue((float)width-(border_space + this->getEntityWidth() / 2 * this->getXScaleValue() + xOffset_heart_build * (this->getEntityWidth() * this->getXScaleValue() + 5.0f)));
+	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
 	xOffset_heart_build++;
 }
 
@@ -265,8 +267,6 @@ Bullet::Bullet() : Entity(Type::BULLET)
 
 void Bullet::build(float x, float y, float angle)
 {
-
-	float m = tan(radians(angle));
 	this->setXShiftValue(x);
 	this->setYShiftValue(y);
 	xBulletMovement = DEFAULT_BULLET_SPEED * cos(radians(90.0f + angle));
@@ -274,7 +274,7 @@ void Bullet::build(float x, float y, float angle)
 	this->setXScaleValue((float)DEFAULT_SIZE * 2 / 3);
 	this->setYScaleValue((float)DEFAULT_SIZE * 2 / 3);
 	this->setRotationValue(angle);
-	this->createPolygonalShape(createHearth(0.04f, 0.04f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	this->createPolygonalShape(createCannonBall(0.6f, 0.3f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 bool Bullet::updatePosition()
@@ -289,7 +289,7 @@ bool Bullet::updatePosition()
 		this->setYShiftValue(newY);
 
 		// Aggiorna le hitbox del proiettile
-		updateHitbox(newX, newY);
+		this->updateHitbox(newX, newY);
 		return true;
 	}
 	return false;
@@ -436,4 +436,68 @@ void Player::initPlayerPartsVAO()
 }
 #pragma endregion
 
+#pragma region Enemy
+
+Enemy::Enemy() : Entity(Type::ENEMY)
+{
+	setAlive(true);
+}
+
+void Enemy::build()
+{
+	float border_space = 0.4f * 25.0f;
+	this->createPolygonalShape(createCannonBall(0.6f, 0.3f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	// Genera casualmente un valore tra 0 e 3 per decidere il lato del bordo da cui partire
+	int side = rand() % 4;  // 0 per il bordo superiore, 1 per il bordo destro, 2 per il bordo inferiore, 3 per il bordo sinistro
+
+	// Genera coordinate casuali sul bordo dello schermo in base al lato scelto
+	float randomX, randomY;
+	switch (side) {
+	case 0:  // Bordo superiore
+		randomX = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * width;
+		randomY = height;
+		break;
+	case 1:  // Bordo destro
+		randomX = width;
+		randomY = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * height;
+		break;
+	case 2:  // Bordo inferiore
+		randomX = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * width;
+		randomY = 0.0f;
+		break;
+	case 3:  // Bordo sinistro
+		randomX = 0.0f;
+		randomY = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * height;
+		break;
+	}
+
+	// Applica le nuove coordinate al nemico
+	this->setXShiftValue(randomX);
+	this->setYShiftValue(randomY);
+}
+
+void Enemy::updatePosition()
+{
+	// Calcoliamo la posizione del centro dello schermo
+	float centerX = width / 2;
+	float centerY = height / 2;
+
+	// Calcoliamo la differenza tra la posizione attuale del nemico e il centro dello schermo
+	float deltaX = centerX - getXShiftValue();
+	float deltaY = centerY - getYShiftValue();
+
+	// Calcoliamo l'angolo tra il nemico e il centro dello schermo
+	float angleToCenter = atan2(deltaY, deltaX); // In radianti
+
+	// Calcoliamo i movimenti del nemico utilizzando l'angolo verso il centro
+	float speed = DEFAULT_BULLET_SPEED-2.0f; // Imposta la velocità desiderata
+	float xMovement = speed * cos(angleToCenter);
+	float yMovement = speed * sin(angleToCenter);
+
+	// Applichiamo i movimenti al nemico
+	setXShiftValue(getXShiftValue() + xMovement);
+	setYShiftValue(getYShiftValue() + yMovement);
+}
+#pragma endregion
 
