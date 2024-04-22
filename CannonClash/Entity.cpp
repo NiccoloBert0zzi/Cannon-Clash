@@ -42,6 +42,22 @@ Entity* Entity::getEntityByType(Type type)
 	return NULL;
 }
 
+bool Entity::isCollided(Entity entity)
+{
+	Hitbox thisHitbox = this->getHitbox();
+	Hitbox otherHitbox = entity.getHitbox();
+
+	// Verifica se le hitbox si sovrappongono lungo l'asse x
+	bool xOverlap = (thisHitbox.cornerBot.x < otherHitbox.cornerTop.x) && (thisHitbox.cornerTop.x > otherHitbox.cornerBot.x);
+
+	// Verifica se le hitbox si sovrappongono lungo l'asse y
+	bool yOverlap = (thisHitbox.cornerBot.y < otherHitbox.cornerTop.y) && (thisHitbox.cornerTop.y > otherHitbox.cornerBot.y);
+
+	// Le hitbox si toccano se si sovrappongono sia lungo l'asse x che lungo l'asse y
+	return xOverlap && yOverlap;
+}
+
+
 
 void Entity::createPolygonalShape(vector<vec3> polygonVertices, vec4 color1, vec4 color2)
 {
@@ -230,19 +246,18 @@ Type Entity::getType()
 }
 void Entity::setAlive(bool value)
 {
-	//TODO check collision
 	alive = value;
 }
 
 bool Entity::isAlive()
 {
-	return false;
+	return alive;
 }
 #pragma endregion
 
 #pragma region Heart
 Heart::Heart() : Entity(Type::HEART) {
-	setAlive(true);
+	this->setAlive(true);
 }
 
 void Heart::build(float size)
@@ -251,7 +266,7 @@ void Heart::build(float size)
 	vec4 red = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 	this->createPolygonalShape(createHearth(size, size, 100), red, red);
 	this->setYShiftValue((float)height - this->getEntityHeight() / 2 * this->getYScaleValue() - border_space);
-	this->setXShiftValue((float)width-(border_space + this->getEntityWidth() / 2 * this->getXScaleValue() + xOffset_heart_build * (this->getEntityWidth() * this->getXScaleValue() + 5.0f)));
+	this->setXShiftValue((float)width - (border_space + this->getEntityWidth() / 2 * this->getXScaleValue() + xOffset_heart_build * (this->getEntityWidth() * this->getXScaleValue() + 5.0f)));
 	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
 	xOffset_heart_build++;
 }
@@ -262,7 +277,7 @@ void Heart::build(float size)
 
 Bullet::Bullet() : Entity(Type::BULLET)
 {
-	setAlive(true);
+	this->setAlive(true);
 }
 
 void Bullet::build(float x, float y, float angle)
@@ -275,6 +290,7 @@ void Bullet::build(float x, float y, float angle)
 	this->setYScaleValue((float)DEFAULT_SIZE * 2 / 3);
 	this->setRotationValue(angle);
 	this->createPolygonalShape(createCannonBall(0.6f, 0.3f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
 }
 
 bool Bullet::updatePosition()
@@ -305,7 +321,7 @@ Player::Player() : Entity(Type::PLAYER)
 	wheel = new Entity(Type::WHEEL);
 	bullets = new vector<Bullet*>();
 	hearts = new vector<Heart*>();
-	setAlive(true);
+	this->setAlive(true);
 }
 void Player::build()
 {
@@ -322,14 +338,17 @@ void Player::build()
 	wheel->createPolygonalShape(createCircle(1.5f, 1.5f, 100), cannon_wheel_color, white_center_color);
 	wheel->setXShiftValue(width / 2);
 	wheel->setYShiftValue(height / 2);
+	wheel->updateHitbox(wheel->getXShiftValue(), wheel->getYShiftValue());
 	//cannon
 	vec4 cannon_color = vec4(0.5f, 0.5f, 0.5f, 1.0f); // Grigio medio per il cannone
 	cannon->createPolygonalShape(createRectangle(1.5f, 3.0f), cannon_color, cannon_color);
 	cannon->setXShiftValue(width / 2);
 	cannon->setYShiftValue(height / 2);
+	cannon->updateHitbox(cannon->getXShiftValue(), cannon->getYShiftValue());
 	//set player in center for movement correctly
 	this->setXShiftValue(width / 2);
 	this->setYShiftValue(height / 2);
+	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
 }
 
 void Player::setScore(int value)
@@ -349,7 +368,7 @@ void Player::shoot()
 	float y = cannon->getYShiftValue();
 	Bullet* bullet = new Bullet();
 	bullet->build(x, y, cannon->getRotationValue());
-	
+
 	bullet->initVAO();
 	bullets->push_back(bullet);
 }
@@ -415,6 +434,14 @@ void Player::updateHearts()
 	}
 }
 
+void Player::decreaseHearts() {
+	// Diminuisci il numero di cuori
+	if (!hearts->empty()) {
+		hearts->pop_back();
+	}else {
+		this->setAlive(false);
+	}
+}
 //player parts
 Entity* Player::getCannon()
 {
@@ -440,7 +467,7 @@ void Player::initPlayerPartsVAO()
 
 Enemy::Enemy() : Entity(Type::ENEMY)
 {
-	setAlive(true);
+	this->setAlive(true);
 }
 
 void Enemy::build()
@@ -475,6 +502,8 @@ void Enemy::build()
 	// Applica le nuove coordinate al nemico
 	this->setXShiftValue(randomX);
 	this->setYShiftValue(randomY);
+	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
+
 }
 
 void Enemy::updatePosition()
@@ -491,13 +520,28 @@ void Enemy::updatePosition()
 	float angleToCenter = atan2(deltaY, deltaX); // In radianti
 
 	// Calcoliamo i movimenti del nemico utilizzando l'angolo verso il centro
-	float speed = DEFAULT_BULLET_SPEED-2.0f; // Imposta la velocità desiderata
+	float speed = DEFAULT_BULLET_SPEED - 2.0f; // Imposta la velocità desiderata
 	float xMovement = speed * cos(angleToCenter);
 	float yMovement = speed * sin(angleToCenter);
 
 	// Applichiamo i movimenti al nemico
 	setXShiftValue(getXShiftValue() + xMovement);
 	setYShiftValue(getYShiftValue() + yMovement);
+	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
+}
+void Enemy::checkCollisionWithPlayer()
+{
+	for (vector<Entity*>* container : scene) {
+		for (Entity* entity : *container) {
+			if (entity->getType() == Type::PLAYER) {
+				Player* player = dynamic_cast<Player*>(entity);
+				if (! this->isCollided(*player->getWheel())) {
+					player->decreaseHearts();
+					this->setAlive(false);
+				}
+			}
+		}
+	}
 }
 #pragma endregion
 

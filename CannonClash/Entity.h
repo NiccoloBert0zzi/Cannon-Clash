@@ -84,6 +84,7 @@ public:
 	void setAlive(bool value);
 	bool isAlive();
 	static Entity* getEntityByType(Type type);
+	bool isCollided(Entity entity);
 };
 
 class Heart :public Entity {
@@ -136,6 +137,7 @@ class Player :public Entity {
 		Entity* getWheel();
 		void updatePlayerPartsVAO();
 		void initPlayerPartsVAO();
+		void decreaseHearts();
 };
 
 class Enemy :public Entity {
@@ -145,4 +147,5 @@ public:
 	Enemy();
 	void build();
 	void updatePosition();
+	void checkCollisionWithPlayer();
 };

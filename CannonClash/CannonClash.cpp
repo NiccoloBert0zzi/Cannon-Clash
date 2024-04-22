@@ -52,18 +52,20 @@ void drawScene(void)
 	{
 		for (Entity* entity : *container)
 		{
-			if (entity->getType() == Type::PLAYER) {
-				Player* player = dynamic_cast<Player*>(entity);
-				for (Bullet* bullet : *player->getBullets()) {
-					drawEntity(bullet);
+			if (entity->isAlive()) {
+				if (entity->getType() == Type::PLAYER) {
+					Player* player = dynamic_cast<Player*>(entity);
+					for (Bullet* bullet : *player->getBullets()) {
+						drawEntity(bullet);
+					}
+					for (Heart* heart : *player->getHearts()) {
+						drawEntity(heart);
+					}
+					drawEntity(player->getWheel());
+					drawEntity(player->getCannon());
 				}
-				for (Heart* heart : *player->getHearts()) {
-					drawEntity(heart);
-				}
-				drawEntity(player->getWheel());
-				drawEntity(player->getCannon());
+				drawEntity(entity);
 			}
-			drawEntity(entity);
 		}
 	}
 	glutSwapBuffers();
@@ -73,16 +75,20 @@ void drawScene(void)
 void updateScale(int value) {
 	for (vector<Entity*>* container : scene) {
 		for (Entity* entity : *container) {
-			if (entity->getType() == Type::PLAYER) {
-				Player* player = dynamic_cast<Player*>(entity);
-				player->updateHearts();
-				player->updateBullets();
-				player->updatePlayerPartsVAO();
-			} else if (entity->getType() == Type::ENEMY) {
-				Enemy* enemy = dynamic_cast<Enemy*>(entity);
-				enemy->updatePosition();
+			if (entity->isAlive()) {
+				if (entity->getType() == Type::PLAYER) {
+					Player* player = dynamic_cast<Player*>(entity);
+					player->updateHearts();
+					player->updateBullets();
+					player->updatePlayerPartsVAO();
+				}
+				else if (entity->getType() == Type::ENEMY) {
+					Enemy* enemy = dynamic_cast<Enemy*>(entity);
+					enemy->updatePosition();
+					enemy->checkCollisionWithPlayer();
+				}
+				entity->updateVAO();
 			}
-			entity->updateVAO();
 		}
 	}
 	glutTimerFunc(32, updateScale, 0);

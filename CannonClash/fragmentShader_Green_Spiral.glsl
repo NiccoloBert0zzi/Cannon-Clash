@@ -1,5 +1,3 @@
-//--- tiles
-// by Catzpaw 2017
 #ifdef GL_ES
 precision mediump float;
 #endif
