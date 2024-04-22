@@ -141,11 +141,15 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="CannonClash.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="Heart.cpp" />
     <ClCompile Include="Keyboard_Handler.cpp" />
     <ClCompile Include="MouseHandler.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Text_Handler.cpp" />
     <ClCompile Include="VAO_Handler.cpp" />
     <ClCompile Include="Shader.cpp" />

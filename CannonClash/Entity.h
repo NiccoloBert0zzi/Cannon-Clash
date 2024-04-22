@@ -12,6 +12,9 @@ using namespace std;
 extern int width;
 extern int height;
 
+#define DEFAULT_BULLET_SPEED 10.0f
+#define DEFAULT_SIZE 25.0f
+
 typedef struct {
 	vec3 cornerBot;
 	vec3 cornerTop;
