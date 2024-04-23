@@ -39,7 +39,9 @@ void drawEntity(Entity* entity)
 		glUniform1i(locSceltafs, 0);
 	glUniform1f(loctime, time);
 	glBindVertexArray(*entity->getVAO());
-	glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNV());
+	glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNV() - 6);
+	glDrawArrays(GL_LINE_STRIP, entity->getNV() - 6, 6);
+
 	glBindVertexArray(0);
 }
 

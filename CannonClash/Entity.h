@@ -87,7 +87,7 @@ public:
 	void setAlive(bool value);
 	bool isAlive();
 	static Entity* getEntityByType(Type type);
-	bool isCollided(Entity entity);
+	bool isCollided(Entity *entity);
 };
 
 class Heart :public Entity {

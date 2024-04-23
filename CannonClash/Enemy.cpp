@@ -17,7 +17,7 @@ void Enemy::build()
 	int side = rand() % 4;  // 0 per il bordo superiore, 1 per il bordo destro, 2 per il bordo inferiore, 3 per il bordo sinistro
 
 	// Genera coordinate casuali sul bordo dello schermo in base al lato scelto
-	float randomX, randomY;
+	float randomX{}, randomY{};
 	switch (side) {
 	case 0:  // Bordo superiore
 		randomX = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * width;
@@ -40,7 +40,7 @@ void Enemy::build()
 	// Applica le nuove coordinate al nemico
 	this->setXShiftValue(randomX);
 	this->setYShiftValue(randomY);
-	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
+	this->updateHitbox(randomX, randomY);
 
 }
 
@@ -51,8 +51,8 @@ void Enemy::updatePosition()
 	float centerY = height / 2;
 
 	// Calcoliamo la differenza tra la posizione attuale del nemico e il centro dello schermo
-	float deltaX = centerX - getXShiftValue();
-	float deltaY = centerY - getYShiftValue();
+	float deltaX = centerX - this->getXShiftValue();
+	float deltaY = centerY - this->getYShiftValue();
 
 	// Calcoliamo l'angolo tra il nemico e il centro dello schermo
 	float angleToCenter = atan2(deltaY, deltaX); // In radianti
@@ -63,8 +63,8 @@ void Enemy::updatePosition()
 	float yMovement = speed * sin(angleToCenter);
 
 	// Applichiamo i movimenti al nemico
-	setXShiftValue(getXShiftValue() + xMovement);
-	setYShiftValue(getYShiftValue() + yMovement);
+	this->setXShiftValue(this->getXShiftValue() + xMovement);
+	setYShiftValue(this->getYShiftValue() + yMovement);
 	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
 }
 void Enemy::checkCollisionWithPlayer()
@@ -73,7 +73,7 @@ void Enemy::checkCollisionWithPlayer()
 		for (Entity* entity : *container) {
 			if (entity->getType() == Type::PLAYER) {
 				Player* player = dynamic_cast<Player*>(entity);
-				if (!this->isCollided(*player->getWheel())) {
+				if (this->isCollided(player->getWheel())) {
 					player->decreaseHearts();
 					this->setAlive(false);
 				}

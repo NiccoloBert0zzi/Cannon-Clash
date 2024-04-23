@@ -35,20 +35,11 @@ Entity* Entity::getEntityByType(Type type)
 	return NULL;
 }
 
-bool Entity::isCollided(Entity entity)
+bool Entity::isCollided(Entity *entity)
 {
-	Hitbox thisHitbox = this->getHitbox();
-	Hitbox otherHitbox = entity.getHitbox();
-
-	// Verifica se le hitbox si sovrappongono lungo l'asse x
-	bool xOverlap = (thisHitbox.cornerBot.x < otherHitbox.cornerTop.x) && (thisHitbox.cornerTop.x > otherHitbox.cornerBot.x);
-
-	// Verifica se le hitbox si sovrappongono lungo l'asse y
-	bool yOverlap = (thisHitbox.cornerBot.y < otherHitbox.cornerTop.y) && (thisHitbox.cornerTop.y > otherHitbox.cornerBot.y);
-
-	// Le hitbox si toccano se si sovrappongono sia lungo l'asse x che lungo l'asse y
-	return xOverlap && yOverlap;
+	return false;
 }
+
 
 
 
@@ -72,8 +63,21 @@ void Entity::createPolygonalShape(vector<vec3> polygonVertices, vec4 color1, vec
 		else if (vertex.y > yMax)
 			yMax = vertex.y;
 	}
-	hitbox.cornerBot = vec3(xMin, yMin, 0.0f);
-	hitbox.cornerTop = vec3(xMax, yMax, 0.0f);
+	hitbox.cornerBot = vec4(xMin, yMin, 0.0f, 1.0f);
+	hitbox.cornerTop = vec4(xMax, yMax, 0.0f, 1.0f);
+
+	vertices.push_back(vec3(xMin, yMin, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMax, yMin, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMax, yMax, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMin, yMin, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMin, yMax, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMax, yMax, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
 }
 
 void Entity::initVAO()
@@ -195,23 +199,16 @@ float Entity::getEntityHeight()
 
 void Entity::updateHitbox(float newX, float newY)
 {
-	// Aggiorna l'hitbox in base alla nuova posizione
-	float xMin = newX;
-	float yMin = newY;
-	float xMax = newX;
-	float yMax = newY;
-	for (vec3 vertex : vertices) {
-		if (vertex.x < xMin)
-			xMin = vertex.x;
-		else if (vertex.x > xMax)
-			xMax = vertex.x;
-		if (vertex.y < yMin)
-			yMin = vertex.y;
-		else if (vertex.y > yMax)
-			yMax = vertex.y;
-	}
-	hitbox.cornerBot = vec3(xMin, yMin, 0.0f);
-	hitbox.cornerTop = vec3(xMax, yMax, 0.0f);
+
+	mat4 modelMatrix = *this->getModel();
+	// Moltiplicare la matrice di trasformazione per il vettore cornerBot
+	vec4 cornerBotTransformed = modelMatrix * vec4(this->hitbox.cornerBot, 1.0f);
+	vec4 cornerTopTransformed = modelMatrix * vec4(this->hitbox.cornerTop, 1.0f);
+
+	// Assegnare il risultato alla proprietà cornerBot della hitbox
+	this->hitbox.cornerBot = vec3(cornerBotTransformed);
+	this->hitbox.cornerTop = vec3(cornerTopTransformed);
+
 }
 
 bool Entity::isBackground()

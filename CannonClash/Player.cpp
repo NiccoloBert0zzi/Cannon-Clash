@@ -81,6 +81,7 @@ void Player::updateBullets()
 		}
 	}
 }
+#include <iostream>
 
 void Player::removeBullet(int index)
 {
@@ -89,6 +90,8 @@ void Player::removeBullet(int index)
 		// Indice non valido, esci dalla funzione
 		return;
 	}
+
+	std::cout << "Proiettile morto. Indice: " << index << std::endl;
 
 	// Dealloca il proiettile all'indice specificato
 	delete (*bullets)[index];
@@ -130,6 +133,7 @@ void Player::decreaseHearts() {
 		this->setAlive(false);
 	}
 }
+
 //player parts
 Entity* Player::getCannon()
 {
