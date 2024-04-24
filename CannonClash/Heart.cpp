@@ -12,6 +12,5 @@ void Heart::build(float size)
 	this->createPolygonalShape(createHearth(size, size, 100), red, red);
 	this->setYShiftValue((float)height - this->getEntityHeight() / 2 * this->getYScaleValue() - border_space);
 	this->setXShiftValue((float)width - (border_space + this->getEntityWidth() / 2 * this->getXScaleValue() + xOffset_heart_build * (this->getEntityWidth() * this->getXScaleValue() + 5.0f)));
-	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
 	xOffset_heart_build++;
 }

@@ -76,6 +76,7 @@ public:
 	void setYScaleValue(float value);
 	void setRotationValue(float value);
 	Hitbox getHitbox();
+	Hitbox getHitboxWorldCoordinates();
 	void updateHitbox(float newX, float newY);
 	vec3 getMidPoint();
 	float getEntityWidth();
@@ -125,6 +126,7 @@ class Player :public Entity {
 		void build();
 		void setScore(int value);
 		int getScore();
+		void increaseScore();
 		//bulltes
 		void shoot();
 		vector<Bullet*>* getBullets();

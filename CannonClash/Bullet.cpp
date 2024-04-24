@@ -16,7 +16,6 @@ void Bullet::build(float x, float y, float angle)
 	this->setYScaleValue((float)DEFAULT_SIZE * 2 / 3);
 	this->setRotationValue(angle);
 	this->createPolygonalShape(createCannonBall(0.6f, 0.3f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
 }
 
 bool Bullet::updatePosition()
@@ -29,9 +28,6 @@ bool Bullet::updatePosition()
 		// Il proiettile è all'interno dello schermo, aggiorna la posizione
 		this->setXShiftValue(newX);
 		this->setYShiftValue(newY);
-
-		// Aggiorna le hitbox del proiettile
-		this->updateHitbox(newX, newY);
 		return true;
 	}
 	return false;

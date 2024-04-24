@@ -37,6 +37,14 @@ Entity* Entity::getEntityByType(Type type)
 
 bool Entity::isCollided(Entity *entity)
 {
+	Hitbox hitbox1 = this->getHitboxWorldCoordinates();
+	Hitbox hitbox2 = entity->getHitboxWorldCoordinates();
+	if (hitbox1.cornerBot.x <= hitbox2.cornerTop.x
+		&& hitbox1.cornerTop.x >= hitbox2.cornerBot.x
+		&& hitbox1.cornerBot.y <= hitbox2.cornerTop.y
+		&& hitbox1.cornerTop.y >= hitbox2.cornerBot.y) {
+		return true;
+	}
 	return false;
 }
 
@@ -178,6 +186,15 @@ void Entity::setRotationValue(float value)
 Hitbox Entity::getHitbox()
 {
 	return hitbox;
+}
+
+Hitbox Entity::getHitboxWorldCoordinates()
+{
+	float xBottom = (float)width / 2 + hitbox.cornerBot.x * xScaleValue + xShiftValue;
+	float yBottom = (float)height / 2 + hitbox.cornerBot.y * yScaleValue + yShiftValue;
+	float xTop = (float)width / 2 + hitbox.cornerTop.x * xScaleValue + xShiftValue;
+	float yTop = (float)height / 2 + hitbox.cornerTop.y * yScaleValue + yShiftValue;
+	return { vec3(xBottom, yBottom, 0.0f), vec3(xTop, yTop, 0.0f) };
 }
 
 vec3 Entity::getMidPoint()

@@ -41,7 +41,6 @@ void drawEntity(Entity* entity)
 	glBindVertexArray(*entity->getVAO());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNV() - 6);
 	glDrawArrays(GL_LINE_STRIP, entity->getNV() - 6, 6);
-
 	glBindVertexArray(0);
 }
 
@@ -70,6 +69,7 @@ void drawScene(void)
 			}
 		}
 	}
+	renderText(Shader::getProgramId_text(), Projection, "Score: ", VAO_Text, VBO_Text, 0, height, 0.5f, vec3(1.0f, 0.0f, 0.0f));
 	glutSwapBuffers();
 	glUseProgram(Shader::getProgramId());
 }
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 
 	Shader::INIT_SHADER();
 	INIT_VAO(&piano, &scene);
-	INIT_VAO_Text();
+	INIT_VAO_Text(&VAO_Text, &VBO_Text);
 	Init_Freetype();
 
 	glutPassiveMotionFunc(mouseMovement);

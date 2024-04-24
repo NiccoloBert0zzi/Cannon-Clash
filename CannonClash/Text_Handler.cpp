@@ -76,10 +76,7 @@ void Init_Freetype() {
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
 }
-void RenderText(int Program, mat4 Projection_Text, unsigned int VAO_Text, unsigned int VBO_Text, std::string text, float x, float y, float scale, glm::vec3 color)
-{
-}
-void RenderText(int Program, mat4 Projection_text, std::string text, unsigned int VAO_Text, unsigned int VBO_Text, float x, float y, float scale, glm::vec3 color)
+void renderText(int Program, mat4 Projection_text, std::string text, unsigned int VAO_Text, unsigned int VBO_Text, float x, float y, float scale, glm::vec3 color)
 {
 	// Attiva lo stato di rendering corrispondente
 	glUseProgram(Program);

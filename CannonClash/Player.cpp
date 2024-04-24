@@ -48,16 +48,23 @@ int Player::getScore()
 	return score;
 }
 
+void Player::increaseScore()
+{
+	score += 100;
+}
+
 //bullets
 void Player::shoot()
 {
-	float x = cannon->getXShiftValue();
-	float y = cannon->getYShiftValue();
-	Bullet* bullet = new Bullet();
-	bullet->build(x, y, cannon->getRotationValue());
+	if (this->isAlive()) {
+		float x = cannon->getXShiftValue();
+		float y = cannon->getYShiftValue();
+		Bullet* bullet = new Bullet();
+		bullet->build(x, y, cannon->getRotationValue());
 
-	bullet->initVAO();
-	bullets->push_back(bullet);
+		bullet->initVAO();
+		bullets->push_back(bullet);
+	}
 }
 vector<Bullet*>* Player::getBullets()
 {
@@ -81,7 +88,6 @@ void Player::updateBullets()
 		}
 	}
 }
-#include <iostream>
 
 void Player::removeBullet(int index)
 {
@@ -90,8 +96,6 @@ void Player::removeBullet(int index)
 		// Indice non valido, esci dalla funzione
 		return;
 	}
-
-	std::cout << "Proiettile morto. Indice: " << index << std::endl;
 
 	// Dealloca il proiettile all'indice specificato
 	delete (*bullets)[index];

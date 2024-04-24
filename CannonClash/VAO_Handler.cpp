@@ -39,15 +39,15 @@ void UPDATE_VAO(Entity* entity) {
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(1);
 }
-void INIT_VAO_Text(void)
+void INIT_VAO_Text(GLuint* VAO_Text, GLuint* VBO_Text)
 {
 
 	// configure VAO/VBO for texture quads
 	// -----------------------------------
-	glGenVertexArrays(1, &VAO_Text);
-	glGenBuffers(1, &VBO_Text);
-	glBindVertexArray(VAO_Text);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_Text);
+	glGenVertexArrays(1, VAO_Text);
+	glGenBuffers(1, VBO_Text);
+	glBindVertexArray(*VAO_Text);
+	glBindBuffer(GL_ARRAY_BUFFER, *VBO_Text);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);

@@ -40,7 +40,6 @@ void Enemy::build()
 	// Applica le nuove coordinate al nemico
 	this->setXShiftValue(randomX);
 	this->setYShiftValue(randomY);
-	this->updateHitbox(randomX, randomY);
 
 }
 
@@ -64,8 +63,7 @@ void Enemy::updatePosition()
 
 	// Applichiamo i movimenti al nemico
 	this->setXShiftValue(this->getXShiftValue() + xMovement);
-	setYShiftValue(this->getYShiftValue() + yMovement);
-	this->updateHitbox(this->getXShiftValue(), this->getYShiftValue());
+	this->setYShiftValue(this->getYShiftValue() + yMovement);
 }
 void Enemy::checkCollisionWithPlayer()
 {
@@ -76,6 +74,16 @@ void Enemy::checkCollisionWithPlayer()
 				if (this->isCollided(player->getWheel())) {
 					player->decreaseHearts();
 					this->setAlive(false);
+				}
+				// Controlla se il nemico è stato colpito da un proiettile del giocatore
+				if (this->isAlive()) {
+					for (Bullet* bullet : *player->getBullets()) {
+						if (this->isCollided(bullet)) {
+							player->increaseScore();
+							this->setAlive(false);
+							bullet->setAlive(false);
+						}
+					}
 				}
 			}
 		}
