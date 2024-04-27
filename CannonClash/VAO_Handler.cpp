@@ -66,15 +66,16 @@ void INIT_VAO(vector<Entity*>* piano, vector<vector<Entity*>*>* scene)
 	//player
 	vector<Entity*>* players = new vector<Entity*>();
 	Player* player = new Player();
-	players->push_back(player);
 	player->build();
+	players->push_back(player);
 	
 	//enemy
 	vector<Entity*>* enemys = new vector<Entity*>();
-	for (size_t i = 0; i < 2; i++) {
+	for (size_t i = 0; i < 5; i++) {
 		Enemy* enemy = new Enemy();
-		enemys->push_back(enemy);
 		enemy->build();
+		if(i == 0) enemy->setAlive(true);
+		enemys->push_back(enemy);
 	}
 
 	scene->push_back(piano);

@@ -14,6 +14,7 @@ extern int height;
 
 #define DEFAULT_BULLET_SPEED 10.0f
 #define DEFAULT_SIZE 25.0f
+#define P_VAL 100
 
 typedef struct {
 	vec3 cornerBot;
@@ -147,10 +148,12 @@ class Player :public Entity {
 
 class Enemy :public Entity {
 	private:
-
+		bool dead;
 public:
 	Enemy();
 	void build();
 	void updatePosition();
-	void checkCollisionWithPlayer();
+	void checkEnemyCollision();
+	void setDead(bool value);
+	bool isDead();
 };

@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "VAO_Handler.h"
+#include "HermiteHandler.h"
 #include "Geometry.h"
 #include "Lib.h"
 using namespace glm;
@@ -73,6 +74,78 @@ void Entity::createPolygonalShape(vector<vec3> polygonVertices, vec4 color1, vec
 	}
 	hitbox.cornerBot = vec4(xMin, yMin, 0.0f, 1.0f);
 	hitbox.cornerTop = vec4(xMax, yMax, 0.0f, 1.0f);
+
+	vertices.push_back(vec3(xMin, yMin, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMax, yMin, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMax, yMax, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMin, yMin, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMin, yMax, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+	vertices.push_back(vec3(xMax, yMax, 0.0));
+	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));
+}
+
+void Entity::createHermiteShape(vector<vec3> controlPoints, vec3 center, vec4 color1, vec4 color2)
+{
+	Shape derivative;
+	Shape polygonal;
+	polygonal.cpCoordinates = controlPoints;
+	float* t = new float[polygonal.cpCoordinates.size()];
+	for (int i = 0; i < polygonal.cpCoordinates.size(); i++)
+		t[i] = (float)i / (float)(polygonal.cpCoordinates.size() - 1);
+
+	float p_t = 0, p_b = 0, p_c = 0;
+	float passotg = 1.0f / (float)(P_VAL - 1);
+
+	float tgmapp, ampiezza;
+	int is = 0;
+
+	vertices.push_back(center);
+	colors.push_back(color2);
+
+	for (int i = 0; i < controlPoints.size(); i++)
+		derivative.cpCoordinates.push_back(vec3(0.0f, 0.0f, 0.0f));
+
+	for (float tg = 0.0f; tg <= 1.0f; tg += passotg)
+	{
+		if (tg > t[is + 1])
+			is++;
+		ampiezza = (t[is + 1] - t[is]);
+		tgmapp = (tg - t[is]) / ampiezza;
+
+		float x = controlPoints[is].x * PHI0(tgmapp) + DX(is, t, &derivative, &polygonal) * PHI1(tgmapp) * ampiezza + controlPoints[is + 1].x * PSI0(tgmapp) + DX(is + 1, t, &derivative, &polygonal) * PSI1(tgmapp) * ampiezza;
+		float y = controlPoints[is].y * PHI0(tgmapp) + DY(is, t, &derivative, &polygonal) * PHI1(tgmapp) * ampiezza + controlPoints[is + 1].y * PSI0(tgmapp) + DY(is + 1, t, &derivative, &polygonal) * PSI1(tgmapp) * ampiezza;
+
+		vertices.push_back(vec3(x, y, 0.0f));
+		colors.push_back(color1);
+	}
+
+	vertices.push_back(controlPoints[controlPoints.size() - 1]);
+	colors.push_back(color1);
+
+
+	float xMin = vertices[0].x;
+	float yMin = vertices[0].y;
+	float xMax = vertices[0].x;
+	float yMax = vertices[0].y;
+	for (vec3 vertex : vertices)
+	{
+		if (vertex.x < xMin)
+			xMin = vertex.x;
+		else if (vertex.x > xMax)
+			xMax = vertex.x;
+		if (vertex.y < yMin)
+			yMin = vertex.y;
+		else if (vertex.y > yMax)
+			yMax = vertex.y;
+	}
+
+	hitbox.cornerBot = vec3(xMin, yMin, 0.0f);
+	hitbox.cornerTop = vec3(xMax, yMax, 0.0f);
 
 	vertices.push_back(vec3(xMin, yMin, 0.0));
 	colors.push_back(vec4(1.0, 0.0, 0.0, 1.0));

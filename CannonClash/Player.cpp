@@ -132,9 +132,8 @@ void Player::decreaseHearts() {
 	// Diminuisci il numero di cuori
 	if (!hearts->empty()) {
 		hearts->pop_back();
-	}
-	else {
-		this->setAlive(false);
+		if (hearts->empty())
+			this->setAlive(false);
 	}
 }
 

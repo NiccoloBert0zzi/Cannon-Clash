@@ -1,17 +1,21 @@
 #include "Entity.h"
 #include "Geometry.h"
+#include "VAO_Handler.h"
 #include "Lib.h"
 using namespace glm;
 
 Enemy::Enemy() : Entity(Type::ENEMY)
 {
-	this->setAlive(true);
+	this->setAlive(false);
+	this->setDead(false);
 }
 
 void Enemy::build()
 {
-	float border_space = 0.4f * 25.0f;
-	this->createPolygonalShape(createCannonBall(0.6f, 0.3f, 100), vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	vector<vec3> controlPoints = readPolygonVertices((char*)"slime.txt");
+
+
 
 	// Genera casualmente un valore tra 0 e 3 per decidere il lato del bordo da cui partire
 	int side = rand() % 4;  // 0 per il bordo superiore, 1 per il bordo destro, 2 per il bordo inferiore, 3 per il bordo sinistro
@@ -36,11 +40,14 @@ void Enemy::build()
 		randomY = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * height;
 		break;
 	}
+	this->setXScaleValue(this->getXScaleValue() * 4.0f);
+	this->setYScaleValue(this->getYScaleValue() * 4.0f);
 
 	// Applica le nuove coordinate al nemico
 	this->setXShiftValue(randomX);
 	this->setYShiftValue(randomY);
 
+	this->createHermiteShape(controlPoints, vec3(0.0f, 0.0f, 0.0f), vec4(0.3f, 0.3f, 0.3f, 1.0f), vec4(0.4f, 0.4f, 0.4f, 1.0f));
 }
 
 void Enemy::updatePosition()
@@ -65,7 +72,7 @@ void Enemy::updatePosition()
 	this->setXShiftValue(this->getXShiftValue() + xMovement);
 	this->setYShiftValue(this->getYShiftValue() + yMovement);
 }
-void Enemy::checkCollisionWithPlayer()
+void Enemy::checkEnemyCollision()
 {
 	for (vector<Entity*>* container : scene) {
 		for (Entity* entity : *container) {
@@ -74,6 +81,7 @@ void Enemy::checkCollisionWithPlayer()
 				if (this->isCollided(player->getWheel())) {
 					player->decreaseHearts();
 					this->setAlive(false);
+					this->setDead(true);
 				}
 				// Controlla se il nemico è stato colpito da un proiettile del giocatore
 				if (this->isAlive()) {
@@ -81,6 +89,7 @@ void Enemy::checkCollisionWithPlayer()
 						if (this->isCollided(bullet)) {
 							player->increaseScore();
 							this->setAlive(false);
+							this->setDead(true);
 							bullet->setAlive(false);
 						}
 					}
@@ -88,4 +97,14 @@ void Enemy::checkCollisionWithPlayer()
 			}
 		}
 	}
+}
+
+void Enemy::setDead(bool value)
+{
+	dead = value;
+}
+
+bool Enemy::isDead()
+{
+	return dead;
 }

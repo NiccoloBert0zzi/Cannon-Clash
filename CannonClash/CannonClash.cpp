@@ -7,14 +7,21 @@
 #include "Text_Handler.h"
 #include <ft2build.h>
 #include <ctime>
+#include <chrono>
 #include FT_FREETYPE_H
+
+#ifdef NDEBUG
+bool debugMode = false; // Non sei in modalità di debug
+#else
+bool debugMode = true; // Sei in modalità di debug
+#endif
+
 
 unsigned int VAO_Text, VBO_Text;
 
 //init
 vector<vector<Entity*>*> scene;
 vector<Entity*> piano;
-//Forma Curva = {}, Poligonale = {}, Derivata = {}, shape = {};
 
 mat4 Projection;
 GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltafs;
@@ -22,6 +29,20 @@ GLuint MatProj, MatModel, loctime, locres, locCol1, locCol2, locCol3, locSceltaf
 // viewport size
 int width = 1280;
 int height = 720;
+int score = 0;
+
+// Dichiarazione di una variabile per tenere traccia del tempo trascorso dall'ultima generazione di nemici
+float lastEnemySpawnTime = 0.0f;
+// Intervallo di tempo tra le generazioni di nemici
+float enemySpawnInterval = 1.0f;
+float currentTime = 0;
+
+// Funzione per ottenere il tempo corrente in secondi
+float getTime() {
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto timeInSeconds = std::chrono::duration<float>(currentTime.time_since_epoch()).count();
+	return timeInSeconds;
+}
 
 void drawEntity(Entity* entity)
 {
@@ -40,8 +61,15 @@ void drawEntity(Entity* entity)
 	glUniform1f(loctime, time);
 	glBindVertexArray(*entity->getVAO());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, entity->getNV() - 6);
-	glDrawArrays(GL_LINE_STRIP, entity->getNV() - 6, 6);
+	if (debugMode)
+		glDrawArrays(GL_LINE_STRIP, entity->getNV() - 6, 6);
 	glBindVertexArray(0);
+}
+
+void gameOver(char* text)
+{
+	string str(text);
+	renderText(Shader::getProgramId_text(), Projection, str, VAO_Text, VBO_Text, width / 2 - 30.0f * str.length() / 2, height / 2 - 10.0f, 1.0f, vec3(1.0f, 0.0f, 0.0f));
 }
 
 void drawScene(void)
@@ -49,13 +77,20 @@ void drawScene(void)
 	glClearColor(0.0, 0.0, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	bool playerAlive = false;
+	int numberOfEnemies = 0;
+
 	for (vector<Entity*>* container : scene)
 	{
 		for (Entity* entity : *container)
 		{
-			if (entity->isAlive()) {
+			if (entity->getType() == Type::BACKGROUND)
+				drawEntity(entity);
+			else if (entity->isAlive()) {
 				if (entity->getType() == Type::PLAYER) {
 					Player* player = dynamic_cast<Player*>(entity);
+					//implicito che se è arrivato qui il player è vivo
+					playerAlive = true;
 					for (Bullet* bullet : *player->getBullets()) {
 						drawEntity(bullet);
 					}
@@ -64,33 +99,54 @@ void drawScene(void)
 					}
 					drawEntity(player->getWheel());
 					drawEntity(player->getCannon());
+					score = player->getScore();
 				}
-				drawEntity(entity);
+				if (playerAlive)
+					drawEntity(entity);
+			}
+			if (entity->getType() == Type::ENEMY) {
+				Enemy* enemy = dynamic_cast<Enemy*>(entity);
+				if (!enemy->isDead())
+					numberOfEnemies++;
 			}
 		}
 	}
-	renderText(Shader::getProgramId_text(), Projection, "Score: ", VAO_Text, VBO_Text, 0, height, 0.5f, vec3(1.0f, 0.0f, 0.0f));
+
+	if (playerAlive && numberOfEnemies == 0)
+		gameOver((char*)"YOU WIN");
+	else if (!playerAlive)
+		gameOver((char*)"YOU LOSE");
+	string _score = "Score: " + to_string(score);
+	renderText(Shader::getProgramId_text(), Projection, _score, VAO_Text, VBO_Text, 0 + 10.f, height - 30.0f, 0.5f, vec3(1.0f, 0.0f, 0.0f));
 	glutSwapBuffers();
 	glUseProgram(Shader::getProgramId());
 }
 
 void updateScale(int value) {
+	currentTime = getTime();
+
 	for (vector<Entity*>* container : scene) {
 		for (Entity* entity : *container) {
-			if (entity->isAlive()) {
-				if (entity->getType() == Type::PLAYER) {
-					Player* player = dynamic_cast<Player*>(entity);
-					player->updateHearts();
-					player->updateBullets();
-					player->updatePlayerPartsVAO();
-				}
-				else if (entity->getType() == Type::ENEMY) {
-					Enemy* enemy = dynamic_cast<Enemy*>(entity);
-					enemy->updatePosition();
-					enemy->checkCollisionWithPlayer();
-				}
-				entity->updateVAO();
+			if (entity->getType() == Type::PLAYER) {
+				Player* player = dynamic_cast<Player*>(entity);
+				player->updateHearts();
+				player->updateBullets();
+				player->updatePlayerPartsVAO();
 			}
+			else if (entity->getType() == Type::ENEMY) {
+				Enemy* enemy = dynamic_cast<Enemy*>(entity);
+				if (enemy->isAlive()) {
+					enemy->updatePosition();
+					enemy->checkEnemyCollision();
+				}
+				else {
+					if ((currentTime - lastEnemySpawnTime >= enemySpawnInterval) && !enemy->isDead()) {
+						enemy->setAlive(true);
+						lastEnemySpawnTime = currentTime;
+					}
+				}
+			}
+			entity->updateVAO();
 		}
 	}
 	glutTimerFunc(32, updateScale, 0);
@@ -101,6 +157,7 @@ void updateScale(int value) {
 int main(int argc, char* argv[])
 {
 	srand(static_cast<unsigned int>(time(nullptr)));
+	lastEnemySpawnTime = getTime();
 	glutInit(&argc, argv);
 
 	glutInitContextVersion(4, 0);
